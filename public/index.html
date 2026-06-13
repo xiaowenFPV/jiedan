@@ -380,14 +380,6 @@ function selectType(typeId) {
             <div class="total">¥<span id="totalPrice">${st.unitPrice}</span></div>
             <label>游戏ID <span style="color:#ef4444">*</span></label>
             <input id="gameId" class="input" placeholder="请输入游戏内ID">
-            <label>当前段位</label>
-            <select id="curRank" class="input">
-                <option>青铜</option><option>白银</option><option>黄金</option><option>铂金</option><option>钻石</option><option>大师</option>
-            </select>
-            <label>目标段位</label>
-            <select id="targetRank" class="input">
-                <option>白银</option><option>黄金</option><option>铂金</option><option>钻石</option><option>大师</option><option>王者</option>
-            </select>
             <label>备注</label>
             <input id="note" class="input" placeholder="选填：特殊要求等">
             <button class="btn btn-primary" style="margin-top:16px" onclick="submitOrder('${typeId}')">确认下单 ¥<span id="btnPrice">${st.unitPrice}</span></button>
@@ -426,8 +418,6 @@ async function submitOrder(typeId) {
     const st = STATE.services.find(s => s.id === typeId);
     const qty = parseInt(document.getElementById('orderQty').value) || 1;
     const gameId = document.getElementById('gameId').value.trim();
-    const curRank = document.getElementById('curRank').value;
-    const targetRank = document.getElementById('targetRank').value;
     const note = document.getElementById('note').value.trim();
 
     if (!gameId) return toast('请输入游戏ID', 'error');
@@ -435,7 +425,7 @@ async function submitOrder(typeId) {
     try {
         await api('/api/orders', {
             method: 'POST',
-            body: { typeId, quantity: qty, gameId, curRank, targetRank, note }
+            body: { typeId, quantity: qty, gameId, note }
         });
         toast('下单成功！已派发给所有打手', 'success');
         document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
@@ -459,7 +449,6 @@ async function renderDashiHome(types) {
                     <div class="info">
                         ${o.unitAmount}×${o.quantity} | ¥${o.totalPrice}<br>
                         顾客：${o.customerName} | 游戏ID：${o.gameId}<br>
-                        段位：${o.curRank} → ${o.targetRank}<br>
                         ${o.note ? '备注：' + o.note + '<br>' : ''}时间：${o.time}
                     </div>
                     <div class="actions"><button class="btn btn-success btn-sm" onclick="acceptOrder(${o.id})">接单</button></div>
@@ -518,7 +507,7 @@ function renderOrders() {
                 </div>
                 <div class="info">
                     ${o.unitAmount}×${o.quantity} | ¥${o.totalPrice}<br>
-                    游戏ID：${o.gameId} | ${o.curRank} → ${o.targetRank}<br>
+                    游戏ID：${o.gameId}<br>
                     ${o.dashiName ? '打手：' + o.dashiName + '<br>' : ''}${o.note ? '备注：' + o.note + '<br>' : ''}${o.time}
                 </div>
                 ${actionHtml ? '<div class="actions">' + actionHtml + '</div>' : ''}

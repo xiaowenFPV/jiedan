@@ -174,7 +174,7 @@ app.post('/api/logout', authMiddleware, (req, res) => {
 app.post('/api/orders', authMiddleware, (req, res) => {
     if (req.user.role !== 'guke') return res.status(403).json({ error: '仅顾客可下单' });
 
-    const { typeId, quantity, gameId, curRank, targetRank, note } = req.body;
+    const { typeId, quantity, gameId, note } = req.body;
     const st = SERVICE_TYPES.find(s => s.id === typeId);
     if (!st) return res.status(400).json({ error: '无效的服务类型' });
 
@@ -195,8 +195,6 @@ app.post('/api/orders', authMiddleware, (req, res) => {
         customerName: req.user.name,
         customerId: req.user.id,
         gameId: gameId.trim(),
-        curRank: curRank || '青铜',
-        targetRank: targetRank || '白银',
         note: (note || '').trim(),
         status: 'pending',
         dashiId: null,
