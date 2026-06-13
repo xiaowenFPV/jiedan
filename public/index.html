@@ -1,815 +1,642 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>三角洲行动俱乐部 - 接单平台</title>
-    <style>
-        :root {
-            --bg: #0a0e14; --card: #131820; --border: #1e2836;
-            --accent: #00d4aa; --accent2: #ff6b35;
-            --text: #c8d6e5; --text2: #7a8ba6;
-            --gold: #f0b90b; --red: #e74c3c; --purple: #6c5ce7;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
-            background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6;
-        }
-        .navbar {
-            background: rgba(19,24,32,0.95); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
-            padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px;
-        }
-        .logo { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; letter-spacing: 1px; }
-        .logo-icon {
-            width: 40px; height: 40px; background: linear-gradient(135deg,var(--accent),#009977);
-            border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: #fff; font-weight: 900;
-        }
-        .logo span { color: var(--accent); }
-        .nav-links { display: flex; gap: 28px; list-style: none; }
-        .nav-links a { color: var(--text2); text-decoration: none; font-size: 15px; transition: color 0.2s; padding: 6px 0; border-bottom: 2px solid transparent; cursor: pointer; }
-        .nav-links a:hover,.nav-links a.active { color: var(--accent); border-bottom-color: var(--accent); }
-        .nav-actions { display: flex; gap: 12px; align-items: center; }
-        .user-badge { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-        .role-tag {
-            padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
-        }
-        .role-dashi { background: rgba(255,107,53,0.2); color: var(--accent2); }
-        .role-guke { background: rgba(0,212,170,0.2); color: var(--accent); }
-        .role-admin { background: rgba(108,92,231,0.2); color: var(--purple); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三角洲行动俱乐部接单平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0e17;color:#e0e0e0;min-height:100vh}
+.container{max-width:600px;margin:0 auto;padding:16px;padding-bottom:90px}
 
-        .btn {
-            padding: 9px 22px; border-radius: 8px; font-size: 14px;
-            font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
-        }
-        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-        .btn-outline:hover { background: rgba(0,212,170,0.1); }
-        .btn-primary { background: var(--accent); color: #0a0e14; }
-        .btn-primary:hover { background: #00e8bb; }
-        .btn-warn { background: var(--accent2); color: #fff; }
-        .btn-warn:hover { background: #ff8c5a; }
-        .btn-danger { background: var(--red); color: #fff; }
-        .btn-danger:hover { background: #ff5c5c; }
-        .btn-sm { padding: 5px 14px; font-size: 12px; }
-        .btn-purple { background: var(--purple); color: #fff; }
-        .btn-purple:hover { background: #8b7cf0; }
+/* 导航 */
+.nav{display:flex;justify-content:space-around;background:#111827;padding:12px 8px;position:fixed;bottom:0;left:0;right:0;z-index:100;border-top:1px solid #1e293b}
+.nav-btn{color:#64748b;border:none;background:none;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav-btn.active{color:#3b82f6}
+.nav-btn .icon{font-size:20px}
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 24px 32px; }
-        .main-content { min-height: 400px; }
+/* 卡片 */
+.card{background:#111827;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #1e293b}
+.card h3{font-size:15px;margin-bottom:10px;color:#f1f5f9}
 
-        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
-        .stat-card {
-            background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-            padding: 20px; text-align: center;
-        }
-        .stat-num { font-size: 32px; font-weight: 700; }
-        .stat-num.green { color: var(--accent); }
-        .stat-num.orange { color: var(--accent2); }
-        .stat-num.yellow { color: var(--gold); }
-        .stat-label { color: var(--text2); font-size: 13px; margin-top: 4px; }
+/* 按钮 */
+.btn{display:inline-block;padding:10px 20px;border-radius:8px;border:none;font-size:14px;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:#3b82f6;color:#fff;width:100%}
+.btn-primary:hover{background:#2563eb}
+.btn-success{background:#10b981;color:#fff}
+.btn-success:hover{background:#059669}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-danger:hover{background:#dc2626}
+.btn-outline{border:1px solid #334155;background:transparent;color:#e0e0e0}
+.btn-outline:hover{background:#1e293b}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
 
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-        .filters select {
-            background: var(--card); border: 1px solid var(--border); color: var(--text);
-            padding: 8px 14px; border-radius: 8px; font-size: 14px; cursor: pointer;
-        }
+/* 输入 */
+.input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e0e0e0;font-size:14px}
+.input:focus{outline:none;border-color:#3b82f6}
+label{display:block;font-size:13px;color:#94a3b8;margin-bottom:4px;margin-top:10px}
+select.input{appearance:none}
 
-        .service-list { display: flex; flex-direction: column; gap: 12px; }
-        .service-card {
-            background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-            padding: 16px 20px; display: flex; align-items: center; gap: 16px;
-        }
-        .dashi-avatar {
-            width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center;
-            justify-content: center; font-size: 20px; font-weight: 700; flex-shrink: 0;
-        }
-        .av-bronze { background: rgba(205,127,50,0.2); color: #cd7f32; }
-        .av-silver { background: rgba(192,192,192,0.2); color: #c0c0c0; }
-        .av-gold { background: rgba(240,185,11,0.2); color: #f0b90b; }
-        .av-diamond { background: rgba(108,92,231,0.2); color: #6c5ce7; }
-        .av-legend { background: rgba(231,76,60,0.2); color: #e74c3c; }
+/* 标签 */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-pending{background:#334155;color:#94a3b8}
+.badge-accepted{background:#1e40af;color:#93c5fd}
+.badge-completed{background:#065f46;color:#6ee7b7}
+.badge-cancelled{background:#7f1d1d;color:#fca5a5}
 
-        .service-info { flex: 1; min-width: 0; }
-        .service-info h4 { font-size: 16px; margin-bottom: 4px; }
-        .service-meta { display: flex; gap: 12px; font-size: 13px; color: var(--text2); flex-wrap: wrap; }
-        .tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 6px; }
-        .tag-new { background: rgba(240,185,11,0.2); color: var(--gold); }
-        .tag-hot { background: rgba(231,76,60,0.2); color: var(--red); }
+/* 服务选择卡片 */
+.type-card{border:2px solid #1e293b;border-radius:12px;padding:14px;cursor:pointer;transition:all 0.2s;margin-bottom:8px}
+.type-card:hover{border-color:#334155}
+.type-card.selected{border-color:#3b82f6;background:#1e3a5f}
+.type-card .name{font-size:17px;font-weight:700;color:#f1f5f9}
+.type-card .detail{font-size:13px;color:#94a3b8;margin-top:4px}
+.type-card .price{font-size:20px;font-weight:700;color:#3b82f6;margin-top:8px}
 
-        .service-right { text-align: right; flex-shrink: 0; }
-        .amount { font-size: 22px; font-weight: 700; color: var(--accent2); }
-        .sub { font-size: 12px; color: var(--text2); }
+/* 订单列表 */
+.order-item{background:#1a2332;border-radius:10px;padding:14px;margin-bottom:10px;border-left:3px solid #334155}
+.order-item.accepted{border-left-color:#3b82f6}
+.order-item.completed{border-left-color:#10b981}
+.order-item.cancelled{border-left-color:#ef4444}
+.order-item .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.order-item .type{font-weight:700;font-size:15px;color:#f1f5f9}
+.order-item .info{font-size:12px;color:#94a3b8;line-height:1.8}
+.order-item .actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
 
-        .rank-list { list-style: none; }
-        .rank-list li {
-            display: flex; align-items: center; padding: 12px 16px;
-            border-bottom: 1px solid var(--border); gap: 16px;
-        }
-        .rank-num { font-size: 18px; font-weight: 700; width: 32px; color: var(--gold); }
-        .rank-name { flex: 1; font-size: 15px; }
-        .rank-score { color: var(--accent); font-weight: 600; }
+/* 模态框 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#111827;border-radius:16px;padding:20px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;border:1px solid #1e293b}
+.modal h2{font-size:18px;margin-bottom:16px;color:#f1f5f9}
+.modal .close{float:right;background:none;border:none;color:#64748b;font-size:22px;cursor:pointer}
 
-        .order-list { display: flex; flex-direction: column; gap: 10px; }
-        .order-card {
-            background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-            padding: 14px 18px; font-size: 14px;
-        }
-        .order-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
-        .order-detail { color: var(--text2); font-size: 13px; }
-        .status {
-            padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
-        }
-        .status-pending { background: rgba(240,185,11,0.2); color: var(--gold); }
-        .status-accepted { background: rgba(0,212,170,0.2); color: var(--accent); }
-        .status-completed { background: rgba(108,92,231,0.2); color: var(--purple); }
-        .status-rejected,.status-cancelled { background: rgba(231,76,60,0.2); color: var(--red); }
-        .order-actions { display: flex; gap: 8px; margin-top: 8px; }
+/* 排名 */
+.rank-item{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #1e293b}
+.rank-num{width:28px;font-size:18px;font-weight:700;color:#3b82f6}
+.rank-name{flex:1;font-size:14px;color:#f1f5f9}
+.rank-score{font-size:14px;color:#94a3b8}
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.65); z-index: 200; display: flex;
-            align-items: center; justify-content: center;
-        }
-        .modal-overlay.hidden { display: none; }
-        .modal {
-            background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-            padding: 28px; width: 420px; max-width: 90vw;
-        }
-        .modal h3 { font-size: 20px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 6px; }
-        .form-group input,.form-group select,.form-group textarea {
-            width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
-            padding: 10px 14px; border-radius: 8px; font-size: 14px;
-        }
-        .form-group textarea { resize: vertical; min-height: 60px; }
-        .role-options { display: flex; gap: 12px; }
-        .role-opt {
-            flex: 1; text-align: center; padding: 14px; border: 2px solid var(--border);
-            border-radius: 12px; cursor: pointer; transition: all 0.2s;
-        }
-        .role-opt:hover { border-color: var(--text2); }
-        .role-opt.selected { border-color: var(--accent); background: rgba(0,212,170,0.08); }
-        .role-opt .icon { font-size: 28px; margin-bottom: 6px; }
-        .role-opt .label { font-weight: 600; font-size: 15px; }
-        .role-opt .desc { font-size: 12px; color: var(--text2); margin-top: 4px; }
+/* Tab切换 */
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:#0f172a;border-radius:10px;padding:4px}
+.tab{padding:8px 16px;border-radius:8px;border:none;background:none;color:#64748b;font-size:13px;cursor:pointer;flex:1}
+.tab.active{background:#1e293b;color:#f1f5f9}
 
-        .error-msg { color: var(--red); font-size: 13px; margin-top: 6px; }
-        .hidden { display: none !important; }
+/* Toast */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:8px;font-size:13px;z-index:300;color:#fff}
+.toast-success{background:#059669}
+.toast-error{background:#dc2626}
+.toast-info{background:#2563eb}
 
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .dot-pending { background: var(--gold); }
-        .dot-accepted { background: var(--accent); }
-        .dot-completed { background: var(--purple); }
-        .dot-rejected,.dot-cancelled { background: var(--red); }
+/* 数量选择器 */
+.qty-control{display:flex;align-items:center;gap:0}
+.qty-control button{width:40px;height:40px;font-size:20px;background:#1e293b;border:1px solid #334155;color:#e0e0e0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qty-control button:first-child{border-radius:8px 0 0 8px}
+.qty-control button:last-child{border-radius:0 8px 8px 0}
+.qty-control .qty-input{width:60px;height:40px;text-align:center;font-size:16px;border:1px solid #334155;border-left:none;border-right:none;background:#0f172a;color:#fff;font-weight:700}
+.qty-control .qty-input:focus{outline:none}
 
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { color: var(--text2); font-weight: 600; }
-        tr:hover { background: rgba(255,255,255,0.02); }
-    </style>
+/* 管理员表格 */
+.admin-table{width:100%;font-size:12px;border-collapse:collapse}
+.admin-table th{text-align:left;color:#94a3b8;padding:6px 4px;border-bottom:1px solid #1e293b}
+.admin-table td{padding:6px 4px;border-bottom:1px solid #0f172a}
+.admin-table tr:hover{background:#1a2332}
+
+/* 隐藏 */
+.hidden{display:none!important}
+
+/* 提示区 */
+.tip{padding:40px 0;text-align:center;color:#475569;font-size:14px}
+
+/* 金额显示 */
+.total{font-size:28px;font-weight:700;color:#3b82f6;text-align:center;margin:16px 0}
+</style>
 </head>
 <body>
-<nav class="navbar">
-    <div class="logo"><div class="logo-icon">D</div><span>三角洲行动俱乐部</span></div>
-    <ul class="nav-links">
-        <li><a id="navHall" onclick="switchTab('hall')">服务大厅</a></li>
-        <li><a id="navMy" onclick="switchTab('my')">我的</a></li>
-        <li><a id="navRule" onclick="switchTab('rule')">规则</a></li>
-        <li id="navAdminLi" class="hidden"><a id="navAdmin" onclick="switchTab('admin')">管理</a></li>
-    </ul>
-    <div class="nav-actions">
-        <span id="userDisplay" style="display:none;"></span>
-        <button id="loginBtn" class="btn btn-outline" onclick="openLoginModal()">登录</button>
-    </div>
-</nav>
 
-<div class="container">
-    <div id="mainContent" class="main-content"></div>
+<div id="loginPage" class="container"></div>
+<div id="appPage" class="hidden">
+  <div class="container" id="pageContent"></div>
+  <div class="nav" id="navBar"></div>
 </div>
-
-<!-- 登录弹窗 -->
-<div id="loginModal" class="modal-overlay hidden">
-    <div class="modal" id="loginModalInner">
-    </div>
-</div>
-
-<!-- 发布服务弹窗 -->
-<div id="publishModal" class="modal-overlay hidden">
-    <div class="modal">
-        <h3>发布打手服务</h3>
-        <div class="form-group"><label>打手昵称</label><input id="pubDashiName" placeholder="展示给顾客的名字"></div>
-        <div class="form-group"><label>擅长段位</label>
-            <select id="pubRank"><option>青铜</option><option>白银</option><option>黄金</option><option>钻石</option><option>传奇</option></select>
-        </div>
-        <div class="form-group"><label>服务类型</label>
-            <select id="pubType"><option>代练</option><option>陪玩</option><option>教学</option><option>定级</option></select>
-        </div>
-        <div class="form-group"><label>服务价格 (¥)</label><input id="pubPrice" type="number" min="10" placeholder="最低10元"></div>
-        <div class="form-group"><label>服务说明</label><textarea id="pubDesc"></textarea></div>
-        <div style="display:flex;gap:12px;justify-content:flex-end;">
-            <button class="btn btn-outline" onclick="closePublishModal()">取消</button>
-            <button class="btn btn-primary" onclick="doPublish()">发布</button>
-        </div>
-    </div>
-</div>
-
-<!-- 下单弹窗 -->
-<div id="orderModal" class="modal-overlay hidden">
-    <div class="modal">
-        <h3>确认下单</h3>
-        <div id="orderServiceInfo" style="margin-bottom:16px;color:var(--text2);"></div>
-        <div class="form-group"><label>你的游戏ID</label><input id="orderGameId"></div>
-        <div class="form-group"><label>当前段位</label>
-            <select id="orderCurRank"><option>青铜</option><option>白银</option><option>黄金</option><option>钻石</option><option>传奇</option></select>
-        </div>
-        <div class="form-group"><label>目标段位</label>
-            <select id="orderTargetRank"><option>白银</option><option>黄金</option><option>钻石</option><option>传奇</option></select>
-        </div>
-        <div class="form-group"><label>补充说明</label><textarea id="orderNote"></textarea></div>
-        <div style="display:flex;gap:12px;justify-content:flex-end;">
-            <button class="btn btn-outline" onclick="closeOrderModal()">取消</button>
-            <button class="btn btn-primary" onclick="doOrder()">确认下单</button>
-        </div>
-    </div>
-</div>
+<div id="toastContainer"></div>
+<div id="modalContainer"></div>
 
 <script>
-// ============ API ============
-function api(path, options) {
-    options = options || {};
-    var headers = options.headers || {};
-    var token = sessionStorage.getItem('df_token');
-    if (token) headers['Authorization'] = 'Bearer ' + token;
-    if (!headers['Content-Type'] && !(options.body instanceof FormData)) {
-        headers['Content-Type'] = 'application/json';
-    }
-    var body = options.body;
-    if (body && typeof body === 'object' && !(body instanceof FormData)) {
-        body = JSON.stringify(body);
-    }
-    return fetch(path, {
-        method: options.method || 'GET',
-        headers: headers,
-        body: body
-    }).then(function(res) {
-        return res.json().then(function(data) {
-            if (!res.ok) {
-                var err = new Error(data.error || '请求失败');
-                err.status = res.status;
-                err.data = data;
-                throw err;
-            }
-            return data;
-        });
-    });
-}
-
 // ============ 状态 ============
-var currentUser = null;
-var services = [];
-var allOrders = [];
-var selectedRole = null;
-var orderServiceId = null;
-var adminData = { orders: [], users: [] };
+const STATE = {
+    token: localStorage.getItem('token') || null,
+    user: null,
+    page: localStorage.getItem('page') || 'home',
+    services: null,
+    orders: [],
+    pendingOrders: [],
+    rankList: []
+};
 
-// ============ 页面加载 ============
-(function() {
-    var token = sessionStorage.getItem('df_token');
-    if (token) {
-        api('/api/user').then(function(user) {
-            currentUser = user;
-            updateUserUI();
-            loadAllData().then(function() {
-                switchTab('hall');
-            });
-        }).catch(function() {
-            sessionStorage.removeItem('df_token');
-        });
-    } else {
-        switchTab('hall');
-    }
-})();
+const API = '';
 
-function loadAllData() {
-    return api('/api/services').then(function(data) {
-        services = data;
-    }).then(function() {
-        if (currentUser) {
-            return api('/api/orders/my').then(function(data) {
-                allOrders = data;
-            }).catch(function() { allOrders = []; });
-        }
-    }).then(function() {
-        if (currentUser && currentUser.role === 'admin') {
-            return loadAdminData();
-        }
-    });
+// ============ API 封装 ============
+async function api(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (STATE.token) headers['Authorization'] = 'Bearer ' + STATE.token;
+    const res = await fetch(API + path, { headers, ...opts, body: opts.body ? JSON.stringify(opts.body) : undefined });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '请求失败');
+    return data;
 }
 
-function loadAdminData() {
-    return Promise.all([
-        api('/api/admin/orders'),
-        api('/api/admin/users')
-    ]).then(function(results) {
-        adminData.orders = results[0];
-        adminData.users = results[1];
-    });
+// ============ Toast ============
+function toast(msg, type = 'info') {
+    const el = document.createElement('div');
+    el.className = 'toast toast-' + type;
+    el.textContent = msg;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(() => el.remove(), 2500);
 }
 
-function updateUserUI() {
-    if (!currentUser) {
-        document.getElementById('userDisplay').style.display = 'none';
-        document.getElementById('loginBtn').style.display = '';
-        document.getElementById('navAdminLi').classList.add('hidden');
+// ============ 模态框 ============
+function showModal(title, html, style = '') {
+    const mc = document.getElementById('modalContainer');
+    mc.innerHTML = '<div class="modal-overlay" id="modalOverlay"><div class="modal" style="' + style + '"><button class="close" onclick="closeModal()">✕</button><h2>' + title + '</h2>' + html + '</div></div>';
+    document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target.id === 'modalOverlay') closeModal(); });
+}
+function closeModal() { document.getElementById('modalContainer').innerHTML = ''; }
+
+// ============ 渲染 ============
+function render() {
+    if (!STATE.token || !STATE.user) {
+        document.getElementById('loginPage').classList.remove('hidden');
+        document.getElementById('appPage').classList.add('hidden');
+        renderLogin();
         return;
     }
-    document.getElementById('loginBtn').style.display = 'none';
-    var roleClass = currentUser.role === 'dashi' ? 'role-dashi' : (currentUser.role === 'admin' ? 'role-admin' : 'role-guke');
-    var roleName = currentUser.role === 'dashi' ? '打手' : (currentUser.role === 'admin' ? '管理员' : '顾客');
-    var display = document.getElementById('userDisplay');
-    display.style.display = 'flex';
-    display.innerHTML =
-        '<span class="role-tag ' + roleClass + '">' + roleName + '</span>' +
-        '<span>' + currentUser.name + '</span>' +
-        '<button class="btn btn-outline btn-sm" onclick="logout()">退出</button>' +
-        (currentUser.role === 'dashi' ? '<button class="btn btn-warn btn-sm" onclick="openPublishModal()">发布服务</button>' : '');
-
-    if (currentUser.role === 'admin') {
-        document.getElementById('navAdminLi').classList.remove('hidden');
-    } else {
-        document.getElementById('navAdminLi').classList.add('hidden');
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('appPage').classList.remove('hidden');
+    renderNav();
+    switch (STATE.page) {
+        case 'home': loadHome(); break;
+        case 'orders': loadOrders(); break;
+        case 'rank': loadRank(); break;
+        case 'admin': loadAdmin(); break;
     }
 }
 
-// ============ 导航切换 ============
-function switchTab(tab) {
-    document.querySelectorAll('.nav-links a').forEach(function(a) { a.classList.remove('active'); });
-    var tabMap = { hall: 'navHall', my: 'navMy', rule: 'navRule', admin: 'navAdmin' };
-    var el = document.getElementById(tabMap[tab]);
-    if (el) el.classList.add('active');
+// ============ 登录页 ============
+function renderLogin() {
+    const lp = document.getElementById('loginPage');
+    lp.innerHTML = `
+        <div style="text-align:center;padding-top:60px">
+            <div style="font-size:32px;margin-bottom:8px">🎯</div>
+            <h1 style="font-size:22px;color:#f1f5f9;margin-bottom:6px">三角洲行动俱乐部</h1>
+            <p style="color:#64748b;font-size:13px;margin-bottom:30px">打手接单 · 顾客派单 · 高效匹配</p>
+            <div class="card" style="text-align:left">
+                <div id="loginTabs" class="tabs">
+                    <button class="tab active" onclick="switchLoginTab('login','loginTabs')">登录</button>
+                    <button class="tab" onclick="switchLoginTab('register','loginTabs')">注册</button>
+                </div>
+                <div id="loginForm"></div>
+                <div style="text-align:center;margin-top:10px">
+                    <button class="btn btn-outline btn-sm" onclick="showAdminKey()">管理员入口</button>
+                </div>
+            </div>
+        </div>`;
+    switchLoginTab('login', 'loginTabs');
+}
 
-    if (tab === 'hall') {
-        renderServices();
-        renderRank();
-    } else if (tab === 'my') {
-        if (!currentUser) { openLoginModal(); switchTab('hall'); return; }
-        renderMyPage();
-    } else if (tab === 'rule') {
-        renderRulePage();
-    } else if (tab === 'admin') {
-        if (!currentUser || currentUser.role !== 'admin') { switchTab('hall'); return; }
-        renderAdminPage();
+function switchLoginTab(tab, tabsId) {
+    const ct = document.getElementById(tabsId);
+    ct.querySelectorAll('.tab').forEach((t, i) => { t.classList.toggle('active', i === (tab === 'login' ? 0 : 1)); });
+    if (tab === 'login') renderLoginForm(); else renderRegisterForm();
+}
+
+function renderLoginForm() {
+    const lf = document.getElementById('loginForm');
+    lf.innerHTML = `
+        <label>角色</label>
+        <select id="loginRole" class="input"><option value="guke">顾客</option><option value="dashi">打手</option></select>
+        <label>用户名</label><input id="loginName" class="input" placeholder="请输入用户名">
+        <label>密码</label><input id="loginPass" class="input" type="password" placeholder="请输入密码">
+        <label>安全码（打手必填）</label><input id="loginSafety" class="input" type="password" placeholder="打手请输入安全码">
+        <button class="btn btn-primary" style="margin-top:14px" onclick="doLogin()">登录</button>`;
+}
+
+function renderRegisterForm() {
+    const lf = document.getElementById('loginForm');
+    lf.innerHTML = `
+        <label>角色</label>
+        <select id="regRole" class="input" onchange="onRegRoleChange()"><option value="guke">顾客</option><option value="dashi">打手</option></select>
+        <label>用户名</label><input id="regName" class="input" placeholder="请输入用户名">
+        <label>密码</label><input id="regPass" class="input" type="password" placeholder="至少4位">
+        <div id="regSafetyWrap"><label>安全码（打手必填）</label><input id="regSafety" class="input" type="password" placeholder="安全码"></div>
+        <button class="btn btn-primary" style="margin-top:14px" onclick="doRegister()">注册</button>`;
+}
+
+function onRegRoleChange() {
+    const role = document.getElementById('regRole').value;
+    document.getElementById('regSafetyWrap').style.display = role === 'dashi' ? '' : 'none';
+}
+
+async function doLogin() {
+    const role = document.getElementById('loginRole').value;
+    const name = document.getElementById('loginName').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const safetyCode = document.getElementById('loginSafety').value;
+    try {
+        const body = { name, password: pass, role };
+        if (role === 'dashi') body.safetyCode = safetyCode;
+        const data = await api('/api/login', { method: 'POST', body });
+        STATE.token = data.token;
+        STATE.user = data.user;
+        localStorage.setItem('token', data.token);
+        render();
+        toast('登录成功', 'success');
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+async function doRegister() {
+    const role = document.getElementById('regRole').value;
+    const name = document.getElementById('regName').value.trim();
+    const pass = document.getElementById('regPass').value;
+    const safetyCode = document.getElementById('regSafety').value;
+    try {
+        const body = { name, password: pass, role };
+        if (role === 'dashi') body.safetyCode = safetyCode;
+        const data = await api('/api/register', { method: 'POST', body });
+        STATE.token = data.token;
+        STATE.user = data.user;
+        localStorage.setItem('token', data.token);
+        render();
+        toast('注册成功', 'success');
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+function showAdminKey() {
+    showModal('管理员登录', `
+        <label>用户名</label><input id="adminName" class="input" placeholder="管理员名称">
+        <label>管理员密钥</label><input id="adminKey" class="input" type="password" placeholder="请输入密钥">
+        <button class="btn btn-primary" style="margin-top:14px" onclick="doAdminLogin()">登录</button>`);
+}
+
+async function doAdminLogin() {
+    const name = document.getElementById('adminName').value.trim() || '管理员';
+    const adminKey = document.getElementById('adminKey').value;
+    try {
+        const data = await api('/api/login', { method: 'POST', body: { name, password: '', role: 'admin', adminKey } });
+        STATE.token = data.token;
+        STATE.user = data.user;
+        localStorage.setItem('token', data.token);
+        closeModal();
+        STATE.page = 'admin';
+        render();
+        toast('管理员登录成功', 'success');
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+// ============ 导航 ============
+function renderNav() {
+    const nav = document.getElementById('navBar');
+    let btns = [
+        { page: 'home', icon: '🏠', label: '首页' },
+        { page: 'orders', icon: '📋', label: '我的订单' },
+        { page: 'rank', icon: '🏆', label: '排行榜' }
+    ];
+    if (STATE.user.role === 'admin') btns = [
+        { page: 'admin', icon: '⚙️', label: '管理' }
+    ];
+    btns.push({ page: 'logout', icon: '🚪', label: '退出' });
+
+    nav.innerHTML = btns.map(b => {
+        if (b.page === 'logout') return '<button class="nav-btn" onclick="doLogout()"><span class="icon">' + b.icon + '</span>' + b.label + '</button>';
+        return '<button class="nav-btn' + (STATE.page === b.page ? ' active' : '') + '" onclick="changePage(\'' + b.page + '\')"><span class="icon">' + b.icon + '</span>' + b.label + '</button>';
+    }).join('');
+}
+
+function changePage(p) {
+    STATE.page = p;
+    localStorage.setItem('page', p);
+    render();
+}
+
+async function doLogout() {
+    try { await api('/api/logout', { method: 'POST' }); } catch (_) {}
+    STATE.token = null;
+    STATE.user = null;
+    localStorage.removeItem('token');
+    document.getElementById('loginPage').classList.remove('hidden');
+    document.getElementById('appPage').classList.add('hidden');
+}
+
+// ============ 首页 ============
+async function loadHome() {
+    const pc = document.getElementById('pageContent');
+    pc.innerHTML = '<div class="tip">加载中...</div>';
+    try {
+        const types = await api('/api/types');
+        STATE.services = types;
+        if (STATE.user.role === 'guke') renderGukeHome(types);
+        else if (STATE.user.role === 'dashi') await renderDashiHome(types);
+        else renderGukeHome(types);
+    } catch (e) {
+        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>';
     }
 }
 
-// ============ 服务大厅 ============
-function renderServices(filterRank, filterType) {
-    var list = services;
-    if (filterRank) list = list.filter(function(s) { return s.rank === filterRank; });
-    if (filterType) list = list.filter(function(s) { return s.type === filterType; });
+function renderGukeHome(types) {
+    const pc = document.getElementById('pageContent');
+    pc.innerHTML = `
+        <div class="card">
+            <h3>👋 欢迎，${STATE.user.name}</h3>
+            <p style="color:#64748b;font-size:13px">顾客 | 选择服务下单</p>
+        </div>
+        <div class="card">
+            <h3>📦 选择服务类型</h3>
+            <div id="typeList"></div>
+            <div id="orderForm" class="hidden"></div>
+        </div>`;
 
-    var rankEmoji = { '青铜': 'B', '白银': 'S', '黄金': 'G', '钻石': 'D', '传奇': 'L' };
-    var avClass = { '青铜': 'av-bronze', '白银': 'av-silver', '黄金': 'av-gold', '钻石': 'av-diamond', '传奇': 'av-legend' };
+    const tl = document.getElementById('typeList');
+    tl.innerHTML = types.map(t => `
+        <div class="type-card" id="type_${t.id}" onclick="selectType('${t.id}')">
+            <div class="name">${t.name}</div>
+            <div class="detail">${t.unitPrice}元 / ${t.unitAmount}</div>
+            <div class="price">¥${t.unitPrice}</div>
+        </div>`).join('');
+}
 
-    var html = '<div class="stats-row">' +
-        '<div class="stat-card"><div class="stat-num green">' + list.length + '</div><div class="stat-label">在线打手</div></div>' +
-        '<div class="stat-card"><div class="stat-num orange">' + list.length + '</div><div class="stat-label">今日可下单</div></div>' +
-        '<div class="stat-card"><div class="stat-num yellow">' + allOrders.filter(function(o) { return o.status === 'completed'; }).length + '</div><div class="stat-label">今日已完成</div></div>' +
-        '<div class="stat-card"><div class="stat-num">' + services.length + '</div><div class="stat-label">俱乐部成员</div></div>' +
-        '</div>';
+function selectType(typeId) {
+    const st = STATE.services.find(s => s.id === typeId);
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('type_' + typeId).classList.add('selected');
 
-    html += '<div class="section-title">打手服务列表</div>';
-    html += '<div class="filters">' +
-        '<select id="filterRank" onchange="filterServices()"><option value="">全部段位</option><option>青铜</option><option>白银</option><option>黄金</option><option>钻石</option><option>传奇</option></select>' +
-        '<select id="filterType" onchange="filterServices()"><option value="">全部类型</option><option>代练</option><option>陪玩</option><option>教学</option><option>定级</option></select>' +
-        '</div>';
+    const of = document.getElementById('orderForm');
+    of.classList.remove('hidden');
+    of.innerHTML = `
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1e293b">
+            <label>${st.name}数量</label>
+            <div class="qty-control" style="margin-bottom:10px">
+                <button onclick="changeQty(-1)">−</button>
+                <input class="qty-input" id="orderQty" value="1" oninput="onQtyInput()" type="number" min="1" max="100">
+                <button onclick="changeQty(1)">+</button>
+            </div>
+            <div class="total">¥<span id="totalPrice">${st.unitPrice}</span></div>
+            <label>游戏ID <span style="color:#ef4444">*</span></label>
+            <input id="gameId" class="input" placeholder="请输入游戏内ID">
+            <label>当前段位</label>
+            <select id="curRank" class="input">
+                <option>青铜</option><option>白银</option><option>黄金</option><option>铂金</option><option>钻石</option><option>大师</option>
+            </select>
+            <label>目标段位</label>
+            <select id="targetRank" class="input">
+                <option>白银</option><option>黄金</option><option>铂金</option><option>钻石</option><option>大师</option><option>王者</option>
+            </select>
+            <label>备注</label>
+            <input id="note" class="input" placeholder="选填：特殊要求等">
+            <button class="btn btn-primary" style="margin-top:16px" onclick="submitOrder('${typeId}')">确认下单 ¥<span id="btnPrice">${st.unitPrice}</span></button>
+        </div>`;
+}
 
-    if (list.length === 0) {
-        html += '<div style="text-align:center;color:var(--text2);padding:40px;">暂无打手服务，快来发布吧！</div>';
-    } else {
-        html += '<div class="service-list">' + list.map(function(s) {
-            var tagHtml = '';
-            if (s.tag === 'new') tagHtml = '<span class="tag tag-new">新</span>';
-            else if (s.tag === 'hot') tagHtml = '<span class="tag tag-hot">热门</span>';
+function changeQty(delta) {
+    const el = document.getElementById('orderQty');
+    let v = parseInt(el.value) || 1;
+    v = Math.max(1, Math.min(100, v + delta));
+    el.value = v;
+    updateTotal();
+}
 
-            var actionHtml = '';
-            if (currentUser && currentUser.role === 'guke') {
-                actionHtml = '<button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="openOrderModal(' + s.id + ')">下单</button>';
-            } else if (!currentUser) {
-                actionHtml = '<button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="openLoginModal()">登录后下单</button>';
-            } else if (currentUser && currentUser.role === 'dashi' && currentUser.dashiId === s.dashiId) {
-                actionHtml = '<button class="btn btn-danger btn-sm" style="margin-top:8px;" onclick="removeService(' + s.id + ')">下架</button>';
-            }
+function onQtyInput() {
+    const el = document.getElementById('orderQty');
+    let v = parseInt(el.value) || 1;
+    el.value = Math.max(1, Math.min(100, v));
+    updateTotal();
+}
 
-            return '<div class="service-card">' +
-                '<div class="dashi-avatar ' + avClass[s.rank] + '">' + rankEmoji[s.rank] + '</div>' +
-                '<div class="service-info">' +
-                '<h4>' + s.dashiName + ' ' + tagHtml + '</h4>' +
-                '<div class="service-meta">' +
-                '<span>🏆 ' + s.rank + '段</span>' +
-                '<span>📋 ' + s.type + '</span>' +
-                '<span>⭐ ' + (s.rating || '5.0') + '</span>' +
-                '<span>📦 已接' + (s.orders || 0) + '单</span>' +
-                '</div>' +
-                '<div style="font-size:13px;color:var(--text2);margin-top:4px;">' + (s.desc || '') + '</div>' +
-                '</div>' +
-                '<div class="service-right">' +
-                '<div class="amount">¥' + s.price + '</div>' +
-                '<div class="sub">起</div>' +
-                actionHtml +
-                '</div></div>';
-        }).join('') + '</div>';
+function updateTotal() {
+    const sel = document.querySelector('.type-card.selected');
+    if (!sel) return;
+    const typeId = sel.id.replace('type_', '');
+    const st = STATE.services.find(s => s.id === typeId);
+    const qty = parseInt(document.getElementById('orderQty').value) || 1;
+    const total = st.unitPrice * qty;
+    const tp = document.getElementById('totalPrice');
+    if (tp) tp.textContent = total;
+    const bp = document.getElementById('btnPrice');
+    if (bp) bp.textContent = total;
+}
+
+async function submitOrder(typeId) {
+    const st = STATE.services.find(s => s.id === typeId);
+    const qty = parseInt(document.getElementById('orderQty').value) || 1;
+    const gameId = document.getElementById('gameId').value.trim();
+    const curRank = document.getElementById('curRank').value;
+    const targetRank = document.getElementById('targetRank').value;
+    const note = document.getElementById('note').value.trim();
+
+    if (!gameId) return toast('请输入游戏ID', 'error');
+
+    try {
+        await api('/api/orders', {
+            method: 'POST',
+            body: { typeId, quantity: qty, gameId, curRank, targetRank, note }
+        });
+        toast('下单成功！已派发给所有打手', 'success');
+        document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('orderForm').classList.add('hidden');
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+async function renderDashiHome(types) {
+    const pc = document.getElementById('pageContent');
+    try {
+        const pending = await api('/api/orders/pending');
+        STATE.pendingOrders = pending;
+
+        let ordersHtml = '';
+        if (pending.length === 0) {
+            ordersHtml = '<div class="tip">暂无待接订单</div>';
+        } else {
+            ordersHtml = pending.map(o => `
+                <div class="order-item">
+                    <div class="header"><span class="type">${o.typeName} x${o.quantity}</span><span class="badge badge-pending">待接单</span></div>
+                    <div class="info">
+                        ${o.unitAmount}×${o.quantity} | ¥${o.totalPrice}<br>
+                        顾客：${o.customerName} | 游戏ID：${o.gameId}<br>
+                        段位：${o.curRank} → ${o.targetRank}<br>
+                        ${o.note ? '备注：' + o.note + '<br>' : ''}时间：${o.time}
+                    </div>
+                    <div class="actions"><button class="btn btn-success btn-sm" onclick="acceptOrder(${o.id})">接单</button></div>
+                </div>`).join('');
+        }
+
+        pc.innerHTML = `
+            <div class="card"><h3>🔫 欢迎，${STATE.user.name}</h3><p style="color:#64748b;font-size:13px">打手 | 等待接单</p></div>
+            <div class="card"><h3>📡 待接订单（${pending.length}）</h3><button class="btn btn-outline btn-sm" onclick="loadHome()" style="margin-bottom:10px">刷新</button>${ordersHtml}</div>`;
+    } catch (e) {
+        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '<br><button class="btn btn-outline btn-sm" onclick="loadHome()" style="margin-top:10px">重试</button></div>';
     }
-
-    document.getElementById('mainContent').innerHTML = html;
-
-    if (document.getElementById('filterRank')) document.getElementById('filterRank').value = filterRank || '';
-    if (document.getElementById('filterType')) document.getElementById('filterType').value = filterType || '';
 }
 
-function filterServices() {
-    renderServices(document.getElementById('filterRank').value, document.getElementById('filterType').value);
+async function acceptOrder(oid) {
+    try {
+        await api('/api/orders/' + oid + '/accept', { method: 'PUT' });
+        toast('接单成功', 'success');
+        loadHome();
+    } catch (e) { toast(e.message, 'error'); }
 }
 
-function renderRank() {
-    api('/api/rank').then(function(data) {
-        var listEl = document.getElementById('rankList');
-        if (!listEl) return;
-        if (data.length === 0) {
-            listEl.innerHTML = '<li style="text-align:center;color:var(--text2);padding:20px;">暂无排行数据</li>';
+// ============ 我的订单 ============
+async function loadOrders() {
+    const pc = document.getElementById('pageContent');
+    pc.innerHTML = '<div class="tip">加载中...</div>';
+    try {
+        const orders = await api('/api/orders/my');
+        STATE.orders = orders;
+        renderOrders();
+    } catch (e) {
+        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>';
+    }
+}
+
+function renderOrders() {
+    const pc = document.getElementById('pageContent');
+    const orders = STATE.orders;
+    if (orders.length === 0) {
+        pc.innerHTML = '<div class="tip">暂无订单</div>';
+        return;
+    }
+    pc.innerHTML = orders.map(o => {
+        let actionHtml = '';
+        if (STATE.user.role === 'guke' && o.status === 'pending') {
+            actionHtml = '<button class="btn btn-danger btn-sm" onclick="cancelOrder(' + o.id + ')">取消</button>';
+        }
+        if (STATE.user.role === 'dashi' && o.status === 'accepted') {
+            actionHtml = '<button class="btn btn-success btn-sm" onclick="completeOrder(' + o.id + ')">标记完成</button>';
+        }
+        return `
+            <div class="order-item ${o.status}">
+                <div class="header">
+                    <span class="type">${o.typeName} x${o.quantity}</span>
+                    <span class="badge badge-${o.status}">${statusLabel(o.status)}</span>
+                </div>
+                <div class="info">
+                    ${o.unitAmount}×${o.quantity} | ¥${o.totalPrice}<br>
+                    游戏ID：${o.gameId} | ${o.curRank} → ${o.targetRank}<br>
+                    ${o.dashiName ? '打手：' + o.dashiName + '<br>' : ''}${o.note ? '备注：' + o.note + '<br>' : ''}${o.time}
+                </div>
+                ${actionHtml ? '<div class="actions">' + actionHtml + '</div>' : ''}
+            </div>`;
+    }).join('');
+}
+
+function statusLabel(s) {
+    const map = { pending: '待接单', accepted: '进行中', completed: '已完成', cancelled: '已取消', rejected: '已拒绝' };
+    return map[s] || s;
+}
+
+async function cancelOrder(oid) {
+    try {
+        await api('/api/orders/' + oid + '/cancel', { method: 'PUT' });
+        toast('已取消', 'success');
+        loadOrders();
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+async function completeOrder(oid) {
+    try {
+        await api('/api/orders/' + oid + '/complete', { method: 'PUT' });
+        toast('标记完成', 'success');
+        loadOrders();
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+// ============ 排行榜 ============
+async function loadRank() {
+    const pc = document.getElementById('pageContent');
+    pc.innerHTML = '<div class="tip">加载中...</div>';
+    try {
+        const list = await api('/api/rank');
+        STATE.rankList = list;
+        if (list.length === 0) {
+            pc.innerHTML = '<div class="card"><h3>🏆 打手排行榜</h3><div class="tip">暂无数据</div></div>';
             return;
         }
-        listEl.innerHTML = data.map(function(r) {
-            return '<li>' +
-                '<span class="rank-num">' + r.rank + '</span>' +
-                '<span class="rank-name">' + r.name + '</span>' +
-                '<span class="rank-score">' + r.score + ' 单</span></li>';
-        }).join('');
-    });
-}
-
-// ============ 排行榜单独渲染 ============
-function renderRankOnly() {
-    var html = '<div class="section-title">打手排行榜</div><ul class="rank-list" id="rankList"></ul>';
-    var existing = document.getElementById('rankList');
-    if (!existing) {
-        var main = document.getElementById('mainContent');
-        main.innerHTML += html;
-    }
-    renderRank();
-}
-
-// ============ 登录/注册 ============
-var loginMode = 'user';
-function selectRole(role) {
-    selectedRole = role;
-    document.getElementById('optGuke').classList.toggle('selected', role === 'guke');
-    document.getElementById('optDashi').classList.toggle('selected', role === 'dashi');
-    document.getElementById('safetyCodeGroup').classList.toggle('hidden', role !== 'dashi');
-    document.getElementById('safetyError').classList.add('hidden');
-    document.getElementById('loginError').classList.add('hidden');
-    if (role !== 'dashi') document.getElementById('safetyCode').value = '';
-}
-
-function openLoginModal() {
-    selectedRole = null;
-    loginMode = 'user';
-    renderLoginForm('user');
-    document.getElementById('loginModal').classList.remove('hidden');
-}
-
-function closeLoginModal() {
-    document.getElementById('loginModal').classList.add('hidden');
-}
-
-function renderLoginForm(mode) {
-    loginMode = mode;
-    var modal = document.getElementById('loginModalInner');
-    if (mode === 'admin') {
-        modal.innerHTML =
-            '<h3>管理员登录</h3>' +
-            '<div class="form-group"><label>管理员名称</label><input id="loginName" placeholder="输入你的名字"></div>' +
-            '<div class="form-group"><label>管理员密钥</label><input id="adminKey" type="password" placeholder="输入管理员密钥"></div>' +
-            '<div id="loginError" class="error-msg hidden"></div>' +
-            '<div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;">' +
-            '<button class="btn btn-outline" onclick="renderLoginForm(\'user\')">普通登录</button>' +
-            '<button class="btn btn-purple" onclick="doAdminLogin()">管理员登录</button></div>';
-    } else {
-        modal.innerHTML =
-            '<h3>登录三角洲行动俱乐部</h3>' +
-            '<div class="form-group"><label>用户名</label><input id="loginName" placeholder="请输入用户名"></div>' +
-            '<div class="form-group"><label>密码</label><input id="loginPassword" type="password" placeholder="请输入密码"></div>' +
-            '<label style="font-size:13px;color:var(--text2);margin-bottom:8px;display:block;">选择身份</label>' +
-            '<div class="role-options">' +
-            '<div id="optGuke" class="role-opt" onclick="selectRole(\'guke\')"><div class="icon">🎮</div><div class="label">顾客</div><div class="desc">浏览打手服务 & 下单</div></div>' +
-            '<div id="optDashi" class="role-opt" onclick="selectRole(\'dashi\')"><div class="icon">⚔️</div><div class="label">打手</div><div class="desc">发布服务 & 接单赚钱</div></div>' +
-            '</div>' +
-            '<div id="safetyCodeGroup" class="form-group hidden" style="margin-top:12px;">' +
-            '<label>打手安全码</label><input id="safetyCode" type="password" placeholder="123456">' +
-            '<div id="safetyError" class="error-msg hidden">安全码错误</div></div>' +
-            '<div id="loginError" class="error-msg hidden"></div>' +
-            '<div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;">' +
-            '<button class="btn btn-outline" onclick="renderLoginForm(\'admin\')">管理员入口</button>' +
-            '<button id="loginSubmitBtn" class="btn btn-primary" onclick="doLogin()">确认登录</button></div>';
+        pc.innerHTML = `
+            <div class="card">
+                <h3>🏆 打手排行榜</h3>
+                ${list.map((r, i) => `
+                    <div class="rank-item">
+                        <div class="rank-num">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : r.rank}</div>
+                        <div class="rank-name">${r.name}</div>
+                        <div class="rank-score">${r.score} 单</div>
+                    </div>`).join('')}
+            </div>`;
+    } catch (e) {
+        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>';
     }
 }
 
-function doAdminLogin() {
-    var name = document.getElementById('loginName').value.trim() || '管理员';
-    var adminKey = document.getElementById('adminKey').value;
-    if (!adminKey) { document.getElementById('loginError').textContent = '请输入管理员密钥'; document.getElementById('loginError').classList.remove('hidden'); return; }
-
-    api('/api/login', { method: 'POST', body: { name: name, adminKey: adminKey } }).then(function(data) {
-        sessionStorage.setItem('df_token', data.token);
-        currentUser = data.user;
-        updateUserUI();
-        closeLoginModal();
-        loadAllData().then(function() {
-            switchTab('admin');
-        });
-    }).catch(function(err) {
-        document.getElementById('loginError').textContent = err.message;
-        document.getElementById('loginError').classList.remove('hidden');
-    });
-}
-
-function doLogin() {
-    var name = document.getElementById('loginName').value.trim();
-    var password = document.getElementById('loginPassword').value;
-    if (!name) { alert('请输入用户名'); return; }
-    if (!password || password.length < 4) { alert('密码至少4位'); return; }
-    if (!selectedRole) { alert('请选择身份（顾客或打手）'); return; }
-
-    var body = { name: name, password: password, role: selectedRole };
-    if (selectedRole === 'dashi') {
-        var code = document.getElementById('safetyCode').value;
-        if (!code) { alert('请输入打手安全码'); return; }
-        body.safetyCode = code;
+// ============ 管理员 ============
+async function loadAdmin() {
+    const pc = document.getElementById('pageContent');
+    pc.innerHTML = '<div class="tip">加载中...</div>';
+    try {
+        const [orders, users] = await Promise.all([api('/api/admin/orders'), api('/api/admin/users')]);
+        renderAdmin(orders, users);
+    } catch (e) {
+        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>';
     }
+}
 
-    api('/api/login', { method: 'POST', body: body }).then(function(data) {
-        sessionStorage.setItem('df_token', data.token);
-        currentUser = data.user;
-        updateUserUI();
-        closeLoginModal();
-        loadAllData().then(function() {
-            renderServices();
-            switchTab('my');
-        });
-    }).catch(function(err) {
-        if (err.status === 401 && err.data && err.data.error === '用户不存在，请先注册') {
-            showRegisterConfirm(name, password);
-        } else if (err.status === 403) {
-            document.getElementById('safetyError').classList.remove('hidden');
-        } else {
-            document.getElementById('loginError').textContent = err.message;
-            document.getElementById('loginError').classList.remove('hidden');
-        }
+function renderAdmin(orders, users) {
+    const pc = document.getElementById('pageContent');
+    let ordersHtml = orders.length === 0 ? '<div class="tip">无订单</div>' : `
+        <div style="overflow-x:auto"><table class="admin-table">
+            <tr><th>ID</th><th>类型</th><th>数量</th><th>金额</th><th>顾客</th><th>打手</th><th>状态</th><th>时间</th></tr>
+            ${orders.map(o => `<tr><td>${o.id}</td><td>${o.typeName}</td><td>${o.quantity}</td><td>¥${o.totalPrice}</td><td>${o.customerName}</td><td>${o.dashiName || '-'}</td><td>${statusLabel(o.status)}</td><td>${o.time ? o.time.slice(5,16) : '-'}</td></tr>`).join('')}
+        </table></div>`;
+    let usersHtml = users.length === 0 ? '<div class="tip">无用户</div>' : `
+        <div style="overflow-x:auto"><table class="admin-table">
+            <tr><th>ID</th><th>名称</th><th>角色</th><th>完成数</th></tr>
+            ${users.map(u => `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.role === 'dashi' ? '打手' : '顾客'}</td><td>${u.completedOrders || 0}</td></tr>`).join('')}
+        </table></div>`;
+
+    pc.innerHTML = `
+        <div class="card"><h3>⚙️ 管理员面板</h3>
+            <button class="btn btn-danger btn-sm" onclick="adminCancelAll()" style="margin-right:8px">下架全部进行中订单</button>
+            <button class="btn btn-danger btn-sm" onclick="adminClearOrders()">清空订单</button>
+        </div>
+        <div class="card"><h3>📋 全部订单 (${orders.length})</h3>${ordersHtml}</div>
+        <div class="card"><h3>👥 全部用户 (${users.length})</h3>${usersHtml}</div>`;
+}
+
+async function adminCancelAll() {
+    if (!confirm('确定下架所有进行中/待确认订单？')) return;
+    try {
+        const r = await api('/api/admin/orders/cancel-all', { method: 'POST' });
+        toast(r.msg, 'success');
+        loadAdmin();
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+async function adminClearOrders() {
+    if (!confirm('确定清空全部订单？此操作不可恢复！')) return;
+    try {
+        await api('/api/admin/clear', { method: 'POST', body: { type: 'orders' } });
+        toast('已清空', 'success');
+        loadAdmin();
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+// ============ 启动 ============
+if (STATE.token) {
+    api('/api/user').then(u => {
+        STATE.user = u;
+        render();
+    }).catch(() => {
+        STATE.token = null;
+        localStorage.removeItem('token');
+        render();
     });
-}
-
-function showRegisterConfirm(name, password) {
-    var modal = document.getElementById('loginModalInner');
-    var safetyCode = document.getElementById('safetyCode') ? document.getElementById('safetyCode').value : '';
-    modal.innerHTML = '<h3>用户未注册</h3>' +
-        '<p style="color:var(--text2);margin-bottom:20px;">该用户 "<strong style="color:var(--text);">' + name + '</strong>" 尚未注册，是否立即注册新账号？</p>' +
-        '<div style="display:flex;gap:12px;justify-content:flex-end;">' +
-        '<button class="btn btn-outline" onclick="closeLoginModal()">取消</button>' +
-        '<button class="btn btn-primary" onclick="doRegister(\'' + name.replace(/'/g, "\\'") + '\', \'' + password.replace(/'/g, "\\'") + '\', \'' + safetyCode.replace(/'/g, "\\'") + '\')">确认注册</button></div>';
-}
-
-function doRegister(name, password, safetyCode) {
-    var body = { name: name, password: password, role: selectedRole };
-    if (selectedRole === 'dashi') {
-        body.safetyCode = safetyCode || '';
-    }
-
-    api('/api/register', { method: 'POST', body: body }).then(function(data) {
-        sessionStorage.setItem('df_token', data.token);
-        currentUser = data.user;
-        updateUserUI();
-        closeLoginModal();
-        loadAllData().then(function() {
-            renderServices();
-            switchTab('my');
-        });
-    }).catch(function(err) {
-        if (err.status === 403) {
-            document.getElementById('safetyError').classList.remove('hidden');
-        } else {
-            alert(err.message);
-        }
-    });
-}
-
-function logout() {
-    api('/api/logout', { method: 'POST' }).then(function() {
-        sessionStorage.removeItem('df_token');
-        currentUser = null;
-        services = [];
-        allOrders = [];
-        updateUserUI();
-        loadAllData().then(function() { renderServices(); });
-        switchTab('hall');
-    }).catch(function() {
-        sessionStorage.removeItem('df_token');
-        currentUser = null;
-        updateUserUI();
-        switchTab('hall');
-    });
-}
-
-// ============ 我的页面 ============
-function renderMyPage() {
-    var html = '<div class="section-title">我的订单</div>';
-    if (allOrders.length === 0) {
-        html += '<div style="text-align:center;color:var(--text2);padding:40px;">暂无订单</div>';
-    } else {
-        html += '<div class="order-list">' + allOrders.map(function(o) {
-            var statusMap = { pending: '待确认', accepted: '进行中', completed: '已完成', rejected: '已拒绝', cancelled: '已取消' };
-            var statusText = statusMap[o.status] || o.status;
-            var dotClass = { pending: 'dot-pending', accepted: 'dot-accepted', completed: 'dot-completed', rejected: 'dot-rejected', cancelled: 'dot-cancelled' };
-            var actions = '';
-            if (currentUser.role === 'dashi' && o.status === 'pending') {
-                actions = '<div class="order-actions">' +
-                    '<button class="btn btn-primary btn-sm" onclick="acceptOrder(' + o.id + ')">接单</button>' +
-                    '<button class="btn btn-outline btn-sm" onclick="rejectOrder(' + o.id + ')">拒绝</button></div>';
-            } else if (currentUser.role === 'dashi' && o.status === 'accepted') {
-                actions = '<div class="order-actions"><button class="btn btn-primary btn-sm" onclick="completeOrder(' + o.id + ')">标记完成</button></div>';
-            } else if (currentUser.role === 'guke' && o.status === 'pending') {
-                actions = '<div class="order-actions"><button class="btn btn-outline btn-sm" onclick="cancelOrder(' + o.id + ')">取消订单</button></div>';
-            }
-            return '<div class="order-card">' +
-                '<div class="order-header"><span>' + (currentUser.role === 'dashi' ? '顾客: ' + o.customerName : '打手: ' + o.dashiName) + '</span>' +
-                '<span class="status status-' + o.status + '"><span class="status-dot ' + (dotClass[o.status] || '') + '"></span>' + statusText + '</span></div>' +
-                '<div class="order-detail">' + o.type + ' | ' + o.curRank + ' → ' + o.targetRank + ' | ¥' + o.price + ' | ' + o.time + '</div>' +
-                (o.gameId ? '<div class="order-detail">游戏ID: ' + o.gameId + '</div>' : '') +
-                (o.note ? '<div class="order-detail">备注: ' + o.note + '</div>' : '') +
-                actions + '</div>';
-        }).join('') + '</div>';
-    }
-    document.getElementById('mainContent').innerHTML = html;
-}
-
-// ============ 规则页面 ============
-function renderRulePage() {
-    document.getElementById('mainContent').innerHTML =
-        '<div style="max-width:600px;margin:40px auto;">' +
-        '<h3 style="margin-bottom:16px;">俱乐部规则</h3>' +
-        '<div style="color:var(--text2);line-height:2.2;font-size:15px;">' +
-        '<p>1. 注册打手需使用安全码 <strong style="color:var(--accent);">123456</strong></p>' +
-        '<p>2. 顾客下单后，打手需在24小时内确认接单或拒绝</p>' +
-        '<p>3. 打手接单后请在约定时间内完成，逾期顾客可投诉</p>' +
-        '<p>4. 禁止恶意刷单、虚假交易，一经发现永久封禁</p>' +
-        '<p>5. 交易纠纷请联系管理员仲裁</p>' +
-        '<p>6. 打手服务价格最低10元</p>' +
-        '</div></div>';
-}
-
-// ============ 管理员页面 ============
-function renderAdminPage() {
-    var tab = adminCurrentTab || 'orders';
-    renderAdminContent(tab);
-}
-
-var adminCurrentTab = 'orders';
-
-function renderAdminContent(tab) {
-    adminCurrentTab = tab;
-    var html = '<div class="section-title">' +
-        '<span style="cursor:pointer;color:' + (tab === 'orders' ? 'var(--accent)' : 'var(--text2)') + '" onclick="renderAdminContent(\'orders\')">全部订单</span>' +
-        '<span style="margin:0 16px;color:var(--border);">|</span>' +
-        '<span style="cursor:pointer;color:' + (tab === 'users' ? 'var(--accent)' : 'var(--text2)') + '" onclick="renderAdminContent(\'users\')">全部账户</span>' +
-        '</div>';
-
-    if (tab === 'orders') {
-        html += '<div style="margin-bottom:16px;">' +
-            '<button class="btn btn-danger btn-sm" onclick="adminCancelAll()">下架所有进行中/待确认订单</button>' +
-            '</div>';
-        if (adminData.orders.length === 0) {
-            html += '<div style="text-align:center;color:var(--text2);padding:40px;">暂无订单</div>';
-        } else {
-            html += '<table><thead><tr><th>ID</th><th>顾客</th><th>打手</th><th>类型</th><th>价格</th><th>状态</th><th>时间</th></tr></thead><tbody>' +
-                adminData.orders.map(function(o) {
-                    var statusMap = { pending: '待确认', accepted: '进行中', completed: '已完成', rejected: '已拒绝', cancelled: '已取消' };
-                    return '<tr>' +
-                        '<td>' + o.id + '</td>' +
-                        '<td>' + o.customerName + '</td>' +
-                        '<td>' + o.dashiName + '</td>' +
-                        '<td>' + o.type + ' ' + o.curRank + '→' + o.targetRank + '</td>' +
-                        '<td>¥' + o.price + '</td>' +
-                        '<td><span class="status status-' + o.status + '">' + (statusMap[o.status] || o.status) + '</span></td>' +
-                        '<td>' + o.time + '</td>' +
-                        '</tr>';
-                }).join('') + '</tbody></table>';
-        }
-    } else {
-        if (adminData.users.length === 0) {
-            html += '<div style="text-align:center;color:var(--text2);padding:40px;">暂无用户</div>';
-        } else {
-            html += '<table><thead><tr><th>ID</th><th>用户名</th><th>角色</th><th>打手ID</th><th>注册时间</th></tr></thead><tbody>' +
-                adminData.users.map(function(u) {
-                    var roleName = u.role === 'dashi' ? '打手' : '顾客';
-                    var d = u.createdAt ? new Date(u.createdAt).toLocaleString('zh-CN') : '-';
-                    return '<tr>' +
-                        '<td>' + u.id + '</td>' +
-                        '<td>' + u.name + '</td>' +
-                        '<td>' + roleName + '</td>' +
-                        '<td>' + (u.dashiId || '-') + '</td>' +
-                        '<td>' + d + '</td>' +
-                        '</tr>';
-                }).join('') + '</tbody></table>';
-        }
-    }
-
-    document.getElementById('mainContent').innerHTML = html;
-}
-
-function adminCancelAll() {
-    if (!confirm('确定要下架所有进行中和待确认的订单吗？')) return;
-    api('/api/admin/orders/cancel-all', { method: 'POST' }).then(function(data) {
-        alert(data.msg);
-        loadAdminData().then(function() {
-            renderAdminContent('orders');
-        });
-    });
-}
-
-// ============ 订单操作 ============
-function acceptOrder(id) { api('/api/orders/' + id + '/accept', { method: 'PUT' }).then(function() { refreshMyOrders(); }); }
-function rejectOrder(id) { api('/api/orders/' + id + '/reject', { method: 'PUT' }).then(function() { refreshMyOrders(); }); }
-function completeOrder(id) { api('/api/orders/' + id + '/complete', { method: 'PUT' }).then(function() { refreshMyOrders(); }); }
-function cancelOrder(id) { api('/api/orders/' + id + '/cancel', { method: 'PUT' }).then(function() { refreshMyOrders(); }); }
-
-function refreshMyOrders() {
-    api('/api/orders/my').then(function(data) {
-        allOrders = data;
-        renderMyPage();
-    });
-}
-
-// ============ 发布服务 ============
-function openPublishModal() {
-    document.getElementById('pubDashiName').value = currentUser.name;
-    document.getElementById('pubPrice').value = '';
-    document.getElementById('pubDesc').value = '';
-    document.getElementById('publishModal').classList.remove('hidden');
-}
-
-function closePublishModal() { document.getElementById('publishModal').classList.add('hidden'); }
-
-function doPublish() {
-    var body = {
-        dashiName: document.getElementById('pubDashiName').value,
-        rank: document.getElementById('pubRank').value,
-        type: document.getElementById('pubType').value,
-        price: document.getElementById('pubPrice').value,
-        desc: document.getElementById('pubDesc').value
-    };
-    api('/api/services', { method: 'POST', body: body }).then(function() {
-        closePublishModal();
-        loadAllData().then(function() { renderServices(); });
-    }).catch(function(err) { alert(err.message); });
-}
-
-function removeService(id) {
-    if (!confirm('确定下架该服务？')) return;
-    api('/api/services/' + id, { method: 'DELETE' }).then(function() {
-        loadAllData().then(function() { renderServices(); });
-    });
-}
-
-// ============ 下单 ============
-function openOrderModal(serviceId) {
-    orderServiceId = serviceId;
-    var s = services.find(function(s) { return s.id === serviceId; });
-    document.getElementById('orderServiceInfo').textContent = '打手: ' + s.dashiName + ' | ' + s.type + ' | ¥' + s.price;
-    document.getElementById('orderGameId').value = '';
-    document.getElementById('orderNote').value = '';
-    document.getElementById('orderModal').classList.remove('hidden');
-}
-
-function closeOrderModal() { document.getElementById('orderModal').classList.add('hidden'); }
-
-function doOrder() {
-    var body = {
-        serviceId: orderServiceId,
-        gameId: document.getElementById('orderGameId').value,
-        curRank: document.getElementById('orderCurRank').value,
-        targetRank: document.getElementById('orderTargetRank').value,
-        note: document.getElementById('orderNote').value
-    };
-    api('/api/orders', { method: 'POST', body: body }).then(function() {
-        closeOrderModal();
-        loadAllData().then(function() {
-            renderServices();
-            switchTab('my');
-        });
-    }).catch(function(err) { alert(err.message); });
+} else {
+    render();
 }
 </script>
 </body>
