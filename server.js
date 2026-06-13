@@ -285,17 +285,6 @@ app.put('/api/orders/:id/cancel', authMiddleware, (req, res) => {
     return res.json(o);
 });
 
-// 排行榜（打手完成数量）
-app.get('/api/rank', (req, res) => {
-    const users = readData('users').filter(u => u.role === 'dashi' && u.completedOrders > 0);
-    const sorted = users.sort((a, b) => (b.completedOrders || 0) - (a.completedOrders || 0)).slice(0, 10);
-    return res.json(sorted.map((u, i) => ({
-        rank: i + 1,
-        name: u.name,
-        score: u.completedOrders || 0
-    })));
-});
-
 // ============ 管理员接口 ============
 app.get('/api/admin/orders', authMiddleware, adminMiddleware, (req, res) => {
     return res.json(readData('orders'));

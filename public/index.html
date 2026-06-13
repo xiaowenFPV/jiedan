@@ -128,8 +128,7 @@ const STATE = {
     page: localStorage.getItem('page') || 'home',
     services: null,
     orders: [],
-    pendingOrders: [],
-    rankList: []
+    pendingOrders: []
 };
 
 const API = '';
@@ -175,7 +174,6 @@ function render() {
     switch (STATE.page) {
         case 'home': loadHome(); break;
         case 'orders': loadOrders(); break;
-        case 'rank': loadRank(); break;
         case 'admin': loadAdmin(); break;
     }
 }
@@ -296,8 +294,7 @@ function renderNav() {
     const nav = document.getElementById('navBar');
     let btns = [
         { page: 'home', icon: '🏠', label: '首页' },
-        { page: 'orders', icon: '📋', label: '我的订单' },
-        { page: 'rank', icon: '🏆', label: '排行榜' }
+        { page: 'orders', icon: '📋', label: '我的订单' }
     ];
     if (STATE.user.role === 'admin') btns = [
         { page: 'admin', icon: '⚙️', label: '管理' }
@@ -534,32 +531,6 @@ async function completeOrder(oid) {
         toast('标记完成', 'success');
         loadOrders();
     } catch (e) { toast(e.message, 'error'); }
-}
-
-// ============ 排行榜 ============
-async function loadRank() {
-    const pc = document.getElementById('pageContent');
-    pc.innerHTML = '<div class="tip">加载中...</div>';
-    try {
-        const list = await api('/api/rank');
-        STATE.rankList = list;
-        if (list.length === 0) {
-            pc.innerHTML = '<div class="card"><h3>🏆 打手排行榜</h3><div class="tip">暂无数据</div></div>';
-            return;
-        }
-        pc.innerHTML = `
-            <div class="card">
-                <h3>🏆 打手排行榜</h3>
-                ${list.map((r, i) => `
-                    <div class="rank-item">
-                        <div class="rank-num">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : r.rank}</div>
-                        <div class="rank-name">${r.name}</div>
-                        <div class="rank-score">${r.score} 单</div>
-                    </div>`).join('')}
-            </div>`;
-    } catch (e) {
-        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>';
-    }
 }
 
 // ============ 管理员 ============
