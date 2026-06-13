@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const AlipaySdk = require('alipay-sdk').default;
-const { AlipayFormData } = require('alipay-sdk');
+// AlipayFormData no longer needed in v4 - params.bizContent used directly
 
 const app = express();
 const PORT = process.env.PORT || 3456;
@@ -192,15 +192,14 @@ app.post('/api/pay/create', authMiddleware, (req, res) => {
     if (o.customerId !== req.user.id) return res.status(403).json({ error: '权限不足' });
     if (o.status !== 'unpaid') return res.status(400).json({ error: '状态不允许支付' });
     const outTradeNo = 'ORDER_' + orderId + '_' + Date.now();
-    const formData = new AlipayFormData();
-    formData.setMethod('get');
-    formData.addField('notifyUrl', process.env.PAY_NOTIFY_URL || (req.protocol + '://' + req.get('host') + '/api/pay/notify'));
-    formData.addField('bizContent', {
-        outTradeNo, totalAmount: o.totalPrice.toFixed(2),
-        subject: '三角洲-' + o.typeName + ' x' + o.quantity,
-        body: '游戏ID:' + o.gameId, timeoutExpress: '15m'
-    });
-    alipaySdk.exec('alipay.trade.precreate', {}, { formData }).then(result => {
+    alipaySdk.exec('alipay.trade.precreate', {
+        notifyUrl: process.env.PAY_NOTIFY_URL || (req.protocol + '://' + req.get('host') + '/api/pay/notify'),
+        bizContent: {
+            outTradeNo, totalAmount: o.totalPrice.toFixed(2),
+            subject: '三角洲-' + o.typeName + ' x' + o.quantity,
+            body: '游戏ID:' + o.gameId, timeoutExpress: '15m'
+        }
+    }).then(result => {
         o.alipayOutTradeNo = outTradeNo;
         writeData('orders', orders);
         return res.json({ qrCode: result.qrCode, orderId, outTradeNo });
@@ -213,10 +212,9 @@ app.get('/api/pay/status/:id', authMiddleware, (req, res) => {
     if (!o) return res.status(404).json({ error: '订单不存在' });
     if (o.status !== 'unpaid') return res.json({ paid: true, order: o });
     if (!o.alipayOutTradeNo) return res.json({ paid: false });
-    const formData = new AlipayFormData();
-    formData.setMethod('get');
-    formData.addField('bizContent', { outTradeNo: o.alipayOutTradeNo });
-    alipaySdk.exec('alipay.trade.query', {}, { formData }).then(result => {
+    alipaySdk.exec('alipay.trade.query', {
+        bizContent: { outTradeNo: o.alipayOutTradeNo }
+    }).then(result => {
         if (result.code === '10000' && result.tradeStatus === 'TRADE_SUCCESS') {
             o.status = 'pending';
             o.paidAt = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
