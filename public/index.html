@@ -563,17 +563,18 @@
     function showRegisterConfirm(name, password) {
         var overlay = document.getElementById('loginModal');
         var modal = overlay.querySelector('.modal');
+        var safetyCode = document.getElementById('safetyCode').value;
         modal.innerHTML = '<h3>用户未注册</h3>' +
             '<p style="color:var(--text2);margin-bottom:20px;">该用户 "<strong style="color:var(--text);">' + name + '</strong>" 尚未注册，是否立即注册新账号？</p>' +
             '<div style="display:flex;gap:12px;justify-content:flex-end;">' +
             '<button class="btn btn-outline" onclick="closeLoginModal()">取消</button>' +
-            '<button class="btn btn-primary" onclick="doRegister(\'' + name.replace(/'/g, "\\'") + '\', \'' + password.replace(/'/g, "\\'") + '\')">确认注册</button></div>';
+            '<button class="btn btn-primary" onclick="doRegister(\'' + name.replace(/'/g, "\\'") + '\', \'' + password.replace(/'/g, "\\'") + '\', \'' + safetyCode.replace(/'/g, "\\'") + '\')">确认注册</button></div>';
     }
 
-    function doRegister(name, password) {
+    function doRegister(name, password, safetyCode) {
         var body = { name: name, password: password, role: selectedRole };
         if (selectedRole === 'dashi') {
-            body.safetyCode = document.getElementById('safetyCode').value;
+            body.safetyCode = safetyCode || '';
         }
 
         api('/api/register', { method: 'POST', body: body }).then(function(data) {
