@@ -1,0 +1,12 @@
+{
+  "name": "jiedan-platform",
+  "version": "1.0.0",
+  "description": "三角洲行动俱乐部接单平台",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
