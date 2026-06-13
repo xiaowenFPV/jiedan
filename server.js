@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const AlipaySdk = require('alipay-sdk').default;
-const AlipayFormData = require('alipay-sdk/lib/form').default;
+const { AlipayFormData } = require('alipay-sdk');
 
 const app = express();
 const PORT = process.env.PORT || 3456;
