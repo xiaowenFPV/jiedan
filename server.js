@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const AlipaySdk = require('alipay-sdk').default;
+const { AlipaySdk } = require('alipay-sdk');
 // AlipayFormData no longer needed in v4 - params.bizContent used directly
 
 const app = express();
