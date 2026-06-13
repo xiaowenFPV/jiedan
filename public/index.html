@@ -9,110 +9,92 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0e17;color:#e0e0e0;min-height:100vh}
 .container{max-width:600px;margin:0 auto;padding:16px;padding-bottom:90px}
 
-/* 导航 */
 .nav{display:flex;justify-content:space-around;background:#111827;padding:12px 8px;position:fixed;bottom:0;left:0;right:0;z-index:100;border-top:1px solid #1e293b}
 .nav-btn{color:#64748b;border:none;background:none;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
 .nav-btn.active{color:#3b82f6}
-.nav-btn .icon{font-size:20px}
 
-/* 卡片 */
 .card{background:#111827;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #1e293b}
 .card h3{font-size:15px;margin-bottom:10px;color:#f1f5f9}
 
-/* 按钮 */
-.btn{display:inline-block;padding:10px 20px;border-radius:8px;border:none;font-size:14px;cursor:pointer;transition:all 0.2s}
+.btn{display:inline-block;padding:10px 20px;border-radius:8px;border:none;font-size:14px;cursor:pointer}
 .btn-primary{background:#3b82f6;color:#fff;width:100%}
-.btn-primary:hover{background:#2563eb}
 .btn-success{background:#10b981;color:#fff}
-.btn-success:hover{background:#059669}
 .btn-danger{background:#ef4444;color:#fff}
-.btn-danger:hover{background:#dc2626}
+.btn-warning{background:#f59e0b;color:#000}
 .btn-outline{border:1px solid #334155;background:transparent;color:#e0e0e0}
-.btn-outline:hover{background:#1e293b}
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn:disabled{opacity:0.4;cursor:not-allowed}
 
-/* 输入 */
 .input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e0e0e0;font-size:14px}
 .input:focus{outline:none;border-color:#3b82f6}
 label{display:block;font-size:13px;color:#94a3b8;margin-bottom:4px;margin-top:10px}
-select.input{appearance:none}
 
-/* 标签 */
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-unpaid{background:#92400e;color:#fcd34d}
 .badge-pending{background:#334155;color:#94a3b8}
 .badge-accepted{background:#1e40af;color:#93c5fd}
-.badge-completed{background:#065f46;color:#6ee7b7}
+.badge-completed{background:#b45309;color:#fde68a}
+.badge-settled{background:#166534;color:#86efac}
 .badge-cancelled{background:#7f1d1d;color:#fca5a5}
 
-/* 服务选择卡片 */
-.type-card{border:2px solid #1e293b;border-radius:12px;padding:14px;cursor:pointer;transition:all 0.2s;margin-bottom:8px}
-.type-card:hover{border-color:#334155}
+.type-card{border:2px solid #1e293b;border-radius:12px;padding:14px;cursor:pointer;margin-bottom:8px}
 .type-card.selected{border-color:#3b82f6;background:#1e3a5f}
 .type-card .name{font-size:17px;font-weight:700;color:#f1f5f9}
 .type-card .detail{font-size:13px;color:#94a3b8;margin-top:4px}
 .type-card .price{font-size:20px;font-weight:700;color:#3b82f6;margin-top:8px}
 
-/* 订单列表 */
 .order-item{background:#1a2332;border-radius:10px;padding:14px;margin-bottom:10px;border-left:3px solid #334155}
 .order-item.accepted{border-left-color:#3b82f6}
-.order-item.completed{border-left-color:#10b981}
+.order-item.completed{border-left-color:#f59e0b}
+.order-item.settled{border-left-color:#10b981}
 .order-item.cancelled{border-left-color:#ef4444}
 .order-item .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .order-item .type{font-weight:700;font-size:15px;color:#f1f5f9}
 .order-item .info{font-size:12px;color:#94a3b8;line-height:1.8}
+.order-item .info .fee-row{color:#f59e0b}
+.order-item .info .dashi-row{color:#10b981}
 .order-item .actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
 
-/* 模态框 */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
-.modal{background:#111827;border-radius:16px;padding:20px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;border:1px solid #1e293b}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#111827;border-radius:16px;padding:24px;width:100%;max-width:400px;text-align:center;border:1px solid #1e293b}
 .modal h2{font-size:18px;margin-bottom:16px;color:#f1f5f9}
-.modal .close{float:right;background:none;border:none;color:#64748b;font-size:22px;cursor:pointer}
 
-/* 排名 */
-.rank-item{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #1e293b}
-.rank-num{width:28px;font-size:18px;font-weight:700;color:#3b82f6}
-.rank-name{flex:1;font-size:14px;color:#f1f5f9}
-.rank-score{font-size:14px;color:#94a3b8}
-
-/* Tab切换 */
 .tabs{display:flex;gap:4px;margin-bottom:16px;background:#0f172a;border-radius:10px;padding:4px}
 .tab{padding:8px 16px;border-radius:8px;border:none;background:none;color:#64748b;font-size:13px;cursor:pointer;flex:1}
 .tab.active{background:#1e293b;color:#f1f5f9}
 
-/* Toast */
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:8px;font-size:13px;z-index:300;color:#fff}
 .toast-success{background:#059669}
 .toast-error{background:#dc2626}
 .toast-info{background:#2563eb}
 
-/* 数量选择器 */
 .qty-control{display:flex;align-items:center;gap:0}
-.qty-control button{width:40px;height:40px;font-size:20px;background:#1e293b;border:1px solid #334155;color:#e0e0e0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qty-control button{width:40px;height:40px;font-size:20px;background:#1e293b;border:1px solid #334155;color:#e0e0e0;cursor:pointer}
 .qty-control button:first-child{border-radius:8px 0 0 8px}
 .qty-control button:last-child{border-radius:0 8px 8px 0}
 .qty-control .qty-input{width:60px;height:40px;text-align:center;font-size:16px;border:1px solid #334155;border-left:none;border-right:none;background:#0f172a;color:#fff;font-weight:700}
-.qty-control .qty-input:focus{outline:none}
 
-/* 管理员表格 */
 .admin-table{width:100%;font-size:12px;border-collapse:collapse}
 .admin-table th{text-align:left;color:#94a3b8;padding:6px 4px;border-bottom:1px solid #1e293b}
 .admin-table td{padding:6px 4px;border-bottom:1px solid #0f172a}
-.admin-table tr:hover{background:#1a2332}
 
-/* 隐藏 */
 .hidden{display:none!important}
-
-/* 提示区 */
 .tip{padding:40px 0;text-align:center;color:#475569;font-size:14px}
-
-/* 金额显示 */
 .total{font-size:28px;font-weight:700;color:#3b82f6;text-align:center;margin:16px 0}
+
+.fee-breakdown{background:#0f172a;border-radius:8px;padding:12px;margin:12px 0;font-size:13px;line-height:2.2}
+.fee-breakdown .label{color:#94a3b8}
+.fee-breakdown .val{float:right;font-weight:600}
+.fee-breakdown .deduct{color:#f59e0b}
+.fee-breakdown .income{color:#10b981}
+
+.qr-wrapper{display:flex;flex-direction:column;align-items:center;gap:16px}
+.pay-timer{color:#f59e0b;font-size:13px;margin-top:8px}
 </style>
 </head>
 <body>
 
-<div id="loginPage" class="container"></div>
+<div id="loginPage"></div>
 <div id="appPage" class="hidden">
   <div class="container" id="pageContent"></div>
   <div class="nav" id="navBar"></div>
@@ -120,20 +102,18 @@ select.input{appearance:none}
 <div id="toastContainer"></div>
 <div id="modalContainer"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
-// ============ 状态 ============
 const STATE = {
     token: localStorage.getItem('token') || null,
     user: null,
     page: localStorage.getItem('page') || 'home',
     services: null,
     orders: [],
-    pendingOrders: []
+    pollingTimer: null
 };
-
 const API = '';
 
-// ============ API 封装 ============
 async function api(path, opts = {}) {
     const headers = { 'Content-Type': 'application/json' };
     if (STATE.token) headers['Authorization'] = 'Bearer ' + STATE.token;
@@ -143,7 +123,6 @@ async function api(path, opts = {}) {
     return data;
 }
 
-// ============ Toast ============
 function toast(msg, type = 'info') {
     const el = document.createElement('div');
     el.className = 'toast toast-' + type;
@@ -152,101 +131,79 @@ function toast(msg, type = 'info') {
     setTimeout(() => el.remove(), 2500);
 }
 
-// ============ 模态框 ============
-function showModal(title, html, style = '') {
-    const mc = document.getElementById('modalContainer');
-    mc.innerHTML = '<div class="modal-overlay" id="modalOverlay"><div class="modal" style="' + style + '"><button class="close" onclick="closeModal()">✕</button><h2>' + title + '</h2>' + html + '</div></div>';
-    document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target.id === 'modalOverlay') closeModal(); });
+function showModal(html) {
+    document.getElementById('modalContainer').innerHTML = '<div class="modal-overlay" id="modalOverlay" onclick="if(event.target.id===\'modalOverlay\')closeModal()"><div class="modal">' + html + '</div></div>';
 }
-function closeModal() { document.getElementById('modalContainer').innerHTML = ''; }
+function closeModal() {
+    if (STATE.pollingTimer) { clearInterval(STATE.pollingTimer); STATE.pollingTimer = null; }
+    document.getElementById('modalContainer').innerHTML = '';
+}
 
-// ============ 渲染 ============
 function render() {
     if (!STATE.token || !STATE.user) {
-        document.getElementById('loginPage').classList.remove('hidden');
+        document.getElementById('loginPage').style.display = '';
         document.getElementById('appPage').classList.add('hidden');
         renderLogin();
         return;
     }
-    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('loginPage').style.display = 'none';
     document.getElementById('appPage').classList.remove('hidden');
     renderNav();
-    switch (STATE.page) {
-        case 'home': loadHome(); break;
-        case 'orders': loadOrders(); break;
-        case 'admin': loadAdmin(); break;
-    }
+    if (STATE.page === 'admin') loadAdmin();
+    else if (STATE.page === 'orders') loadOrders();
+    else loadHome();
 }
 
-// ============ 登录页 ============
 function renderLogin() {
     const lp = document.getElementById('loginPage');
-    lp.innerHTML = `
-        <div style="text-align:center;padding-top:60px">
-            <div style="font-size:32px;margin-bottom:8px">🎯</div>
-            <h1 style="font-size:22px;color:#f1f5f9;margin-bottom:6px">三角洲行动俱乐部</h1>
-            <p style="color:#64748b;font-size:13px;margin-bottom:30px">打手接单 · 顾客派单 · 高效匹配</p>
-            <div class="card" style="text-align:left">
-                <div id="loginTabs" class="tabs">
-                    <button class="tab active" onclick="switchLoginTab('login','loginTabs')">登录</button>
-                    <button class="tab" onclick="switchLoginTab('register','loginTabs')">注册</button>
-                </div>
-                <div id="loginForm"></div>
-                <div style="text-align:center;margin-top:10px">
-                    <button class="btn btn-outline btn-sm" onclick="showAdminKey()">管理员入口</button>
-                </div>
+    lp.innerHTML = `<div class="container" style="text-align:center;padding-top:60px">
+        <h1 style="font-size:22px;color:#f1f5f9;margin-bottom:6px">三角洲行动俱乐部</h1>
+        <p style="color:#64748b;font-size:13px;margin-bottom:30px">打手接单 · 顾客派单 · 安全支付</p>
+        <div class="card" style="text-align:left">
+            <div id="loginTabs" class="tabs">
+                <button class="tab active" onclick="switchLoginTab('login')">登录</button>
+                <button class="tab" onclick="switchLoginTab('register')">注册</button>
             </div>
-        </div>`;
-    switchLoginTab('login', 'loginTabs');
+            <div id="loginForm"></div>
+            <div style="text-align:center;margin-top:10px">
+                <button class="btn btn-outline btn-sm" onclick="showAdminKey()">管理员入口</button>
+            </div>
+        </div>
+    </div>`;
+    switchLoginTab('login');
 }
 
-function switchLoginTab(tab, tabsId) {
-    const ct = document.getElementById(tabsId);
-    ct.querySelectorAll('.tab').forEach((t, i) => { t.classList.toggle('active', i === (tab === 'login' ? 0 : 1)); });
-    if (tab === 'login') renderLoginForm(); else renderRegisterForm();
-}
-
-function renderLoginForm() {
-    const lf = document.getElementById('loginForm');
-    lf.innerHTML = `
-        <label>角色</label>
-        <select id="loginRole" class="input"><option value="guke">顾客</option><option value="dashi">打手</option></select>
-        <label>用户名</label><input id="loginName" class="input" placeholder="请输入用户名">
-        <label>密码</label><input id="loginPass" class="input" type="password" placeholder="请输入密码">
-        <label>安全码（打手必填）</label><input id="loginSafety" class="input" type="password" placeholder="打手请输入安全码">
-        <button class="btn btn-primary" style="margin-top:14px" onclick="doLogin()">登录</button>`;
-}
-
-function renderRegisterForm() {
-    const lf = document.getElementById('loginForm');
-    lf.innerHTML = `
-        <label>角色</label>
-        <select id="regRole" class="input" onchange="onRegRoleChange()"><option value="guke">顾客</option><option value="dashi">打手</option></select>
-        <label>用户名</label><input id="regName" class="input" placeholder="请输入用户名">
-        <label>密码</label><input id="regPass" class="input" type="password" placeholder="至少4位">
-        <div id="regSafetyWrap"><label>安全码（打手必填）</label><input id="regSafety" class="input" type="password" placeholder="安全码"></div>
-        <button class="btn btn-primary" style="margin-top:14px" onclick="doRegister()">注册</button>`;
-}
-
-function onRegRoleChange() {
-    const role = document.getElementById('regRole').value;
-    document.getElementById('regSafetyWrap').style.display = role === 'dashi' ? '' : 'none';
+function switchLoginTab(tab) {
+    const ct = document.getElementById('loginTabs');
+    ct.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === (tab === 'login' ? 0 : 1)));
+    if (tab === 'login') {
+        document.getElementById('loginForm').innerHTML = `
+            <label>角色</label><select id="loginRole" class="input"><option value="guke">顾客</option><option value="dashi">打手</option></select>
+            <label>用户名</label><input id="loginName" class="input" placeholder="请输入用户名">
+            <label>密码</label><input id="loginPass" class="input" type="password" placeholder="请输入密码">
+            <label>安全码（打手必填）</label><input id="loginSafety" class="input" type="password" placeholder="安全码">
+            <button class="btn btn-primary" style="margin-top:14px" onclick="doLogin()">登录</button>`;
+    } else {
+        document.getElementById('loginForm').innerHTML = `
+            <label>角色</label><select id="regRole" class="input" onchange="document.getElementById('regSafetyWrap').style.display=this.value==='dashi'?'':'none'"><option value="guke">顾客</option><option value="dashi">打手</option></select>
+            <label>用户名</label><input id="regName" class="input" placeholder="请输入用户名">
+            <label>密码</label><input id="regPass" class="input" type="password" placeholder="至少4位">
+            <div id="regSafetyWrap"><label>安全码（打手必填）</label><input id="regSafety" class="input" type="password" placeholder="安全码"></div>
+            <button class="btn btn-primary" style="margin-top:14px" onclick="doRegister()">注册</button>`;
+    }
 }
 
 async function doLogin() {
     const role = document.getElementById('loginRole').value;
     const name = document.getElementById('loginName').value.trim();
     const pass = document.getElementById('loginPass').value;
-    const safetyCode = document.getElementById('loginSafety').value;
     try {
         const body = { name, password: pass, role };
-        if (role === 'dashi') body.safetyCode = safetyCode;
+        if (role === 'dashi') body.safetyCode = document.getElementById('loginSafety').value;
         const data = await api('/api/login', { method: 'POST', body });
-        STATE.token = data.token;
-        STATE.user = data.user;
+        STATE.token = data.token; STATE.user = data.user;
         localStorage.setItem('token', data.token);
-        render();
-        toast('登录成功', 'success');
+        render(); toast('登录成功', 'success');
     } catch (e) { toast(e.message, 'error'); }
 }
 
@@ -254,108 +211,75 @@ async function doRegister() {
     const role = document.getElementById('regRole').value;
     const name = document.getElementById('regName').value.trim();
     const pass = document.getElementById('regPass').value;
-    const safetyCode = document.getElementById('regSafety').value;
     try {
         const body = { name, password: pass, role };
-        if (role === 'dashi') body.safetyCode = safetyCode;
+        if (role === 'dashi') body.safetyCode = document.getElementById('regSafety').value;
         const data = await api('/api/register', { method: 'POST', body });
-        STATE.token = data.token;
-        STATE.user = data.user;
+        STATE.token = data.token; STATE.user = data.user;
         localStorage.setItem('token', data.token);
-        render();
-        toast('注册成功', 'success');
+        render(); toast('注册成功', 'success');
     } catch (e) { toast(e.message, 'error'); }
 }
 
-function showAdminKey() {
-    showModal('管理员登录', `
-        <label>用户名</label><input id="adminName" class="input" placeholder="管理员名称">
-        <label>管理员密钥</label><input id="adminKey" class="input" type="password" placeholder="请输入密钥">
-        <button class="btn btn-primary" style="margin-top:14px" onclick="doAdminLogin()">登录</button>`);
+async function showAdminKey() {
+    showModal(`<h2>管理员登录</h2>
+        <div style="text-align:left">
+            <label>用户名</label><input id="adminName" class="input" placeholder="管理员名称">
+            <label>管理员密钥</label><input id="adminKey" class="input" type="password" placeholder="密钥">
+            <button class="btn btn-primary" style="margin-top:14px" onclick="doAdminLogin()">登录</button>
+        </div>`);
 }
 
 async function doAdminLogin() {
     const name = document.getElementById('adminName').value.trim() || '管理员';
-    const adminKey = document.getElementById('adminKey').value;
     try {
-        const data = await api('/api/login', { method: 'POST', body: { name, password: '', role: 'admin', adminKey } });
-        STATE.token = data.token;
-        STATE.user = data.user;
+        const data = await api('/api/login', { method: 'POST', body: { name, password: '', role: 'admin', adminKey: document.getElementById('adminKey').value } });
+        STATE.token = data.token; STATE.user = data.user;
         localStorage.setItem('token', data.token);
-        closeModal();
-        STATE.page = 'admin';
-        render();
-        toast('管理员登录成功', 'success');
+        closeModal(); STATE.page = 'admin'; render(); toast('管理员登录成功', 'success');
     } catch (e) { toast(e.message, 'error'); }
 }
 
-// ============ 导航 ============
 function renderNav() {
     const nav = document.getElementById('navBar');
-    let btns = [
-        { page: 'home', icon: '🏠', label: '首页' },
-        { page: 'orders', icon: '📋', label: '我的订单' }
-    ];
-    if (STATE.user.role === 'admin') btns = [
-        { page: 'admin', icon: '⚙️', label: '管理' }
-    ];
-    btns.push({ page: 'logout', icon: '🚪', label: '退出' });
-
-    nav.innerHTML = btns.map(b => {
-        if (b.page === 'logout') return '<button class="nav-btn" onclick="doLogout()"><span class="icon">' + b.icon + '</span>' + b.label + '</button>';
-        return '<button class="nav-btn' + (STATE.page === b.page ? ' active' : '') + '" onclick="changePage(\'' + b.page + '\')"><span class="icon">' + b.icon + '</span>' + b.label + '</button>';
-    }).join('');
+    let btns = [{ page: 'home', label: '首页' }, { page: 'orders', label: '我的订单' }];
+    if (STATE.user.role === 'admin') btns = [{ page: 'admin', label: '管理' }];
+    btns.push({ page: 'logout', label: '退出' });
+    nav.innerHTML = btns.map(b =>
+        b.page === 'logout' ? '<button class="nav-btn" onclick="doLogout()">' + b.label + '</button>' :
+        '<button class="nav-btn' + (STATE.page === b.page ? ' active' : '') + '" onclick="changePage(\'' + b.page + '\')">' + b.label + '</button>'
+    ).join('');
 }
 
-function changePage(p) {
-    STATE.page = p;
-    localStorage.setItem('page', p);
-    render();
-}
+function changePage(p) { STATE.page = p; localStorage.setItem('page', p); render(); }
 
 async function doLogout() {
     try { await api('/api/logout', { method: 'POST' }); } catch (_) {}
-    STATE.token = null;
-    STATE.user = null;
-    localStorage.removeItem('token');
-    document.getElementById('loginPage').classList.remove('hidden');
+    STATE.token = null; STATE.user = null; localStorage.removeItem('token');
+    document.getElementById('loginPage').style.display = '';
     document.getElementById('appPage').classList.add('hidden');
 }
 
-// ============ 首页 ============
+// ============ 顾客首页 ============
 async function loadHome() {
     const pc = document.getElementById('pageContent');
     pc.innerHTML = '<div class="tip">加载中...</div>';
     try {
-        const types = await api('/api/types');
-        STATE.services = types;
-        if (STATE.user.role === 'guke') renderGukeHome(types);
-        else if (STATE.user.role === 'dashi') await renderDashiHome(types);
-        else renderGukeHome(types);
-    } catch (e) {
-        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>';
-    }
+        STATE.services = await api('/api/types');
+        if (STATE.user.role === 'guke') renderGukeHome();
+        else if (STATE.user.role === 'dashi') await renderDashiHome();
+        else renderGukeHome();
+    } catch (e) { pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>'; }
 }
 
-function renderGukeHome(types) {
+function renderGukeHome() {
     const pc = document.getElementById('pageContent');
     pc.innerHTML = `
-        <div class="card">
-            <h3>👋 欢迎，${STATE.user.name}</h3>
-            <p style="color:#64748b;font-size:13px">顾客 | 选择服务下单</p>
-        </div>
-        <div class="card">
-            <h3>📦 选择服务类型</h3>
-            <div id="typeList"></div>
-            <div id="orderForm" class="hidden"></div>
-        </div>`;
-
-    const tl = document.getElementById('typeList');
-    tl.innerHTML = types.map(t => `
+        <div class="card"><h3>欢迎，${STATE.user.name}</h3><p style="color:#64748b;font-size:13px">顾客</p></div>
+        <div class="card"><h3>选择服务类型</h3><div id="typeList"></div><div id="orderForm" class="hidden"></div></div>`;
+    document.getElementById('typeList').innerHTML = STATE.services.map(t => `
         <div class="type-card" id="type_${t.id}" onclick="selectType('${t.id}')">
-            <div class="name">${t.name}</div>
-            <div class="detail">${t.unitPrice}元 / ${t.unitAmount}</div>
-            <div class="price">¥${t.unitPrice}</div>
+            <div class="name">${t.name}</div><div class="detail">${t.unitPrice}元 / ${t.unitAmount}</div><div class="price">¥${t.unitPrice}</div>
         </div>`).join('');
 }
 
@@ -363,109 +287,103 @@ function selectType(typeId) {
     const st = STATE.services.find(s => s.id === typeId);
     document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
     document.getElementById('type_' + typeId).classList.add('selected');
-
     const of = document.getElementById('orderForm');
     of.classList.remove('hidden');
     of.innerHTML = `
         <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1e293b">
             <label>${st.name}数量</label>
             <div class="qty-control" style="margin-bottom:10px">
-                <button onclick="changeQty(-1)">−</button>
+                <button onclick="changeQty(-1)">-</button>
                 <input class="qty-input" id="orderQty" value="1" oninput="onQtyInput()" type="number" min="1" max="100">
                 <button onclick="changeQty(1)">+</button>
             </div>
             <div class="total">¥<span id="totalPrice">${st.unitPrice}</span></div>
+            <div class="fee-breakdown">
+                <div><span class="label">商品金额</span><span class="val" id="fbAmount">¥${st.unitPrice}</span></div>
+                <div><span class="label">平台服务费（15%）</span><span class="val deduct" id="fbPlatform">-¥${(st.unitPrice*0.15).toFixed(2)}</span></div>
+                <div><span class="label">支付宝手续费（0.6%）</span><span class="val deduct" id="fbAlipay">-¥${(st.unitPrice*0.006).toFixed(2)}</span></div>
+                <div style="border-top:1px solid #1e293b;margin-top:4px;padding-top:4px"><span class="label">打手所得（84.4%）</span><span class="val income" id="fbDashi">¥${(st.unitPrice*0.844).toFixed(2)}</span></div>
+            </div>
             <label>游戏ID <span style="color:#ef4444">*</span></label>
             <input id="gameId" class="input" placeholder="请输入游戏内ID">
-            <label>备注</label>
-            <input id="note" class="input" placeholder="选填：特殊要求等">
+            <label>备注</label><input id="note" class="input" placeholder="选填">
             <button class="btn btn-primary" style="margin-top:16px" onclick="submitOrder('${typeId}')">确认下单 ¥<span id="btnPrice">${st.unitPrice}</span></button>
         </div>`;
 }
 
-function changeQty(delta) {
-    const el = document.getElementById('orderQty');
-    let v = parseInt(el.value) || 1;
-    v = Math.max(1, Math.min(100, v + delta));
-    el.value = v;
-    updateTotal();
-}
-
-function onQtyInput() {
-    const el = document.getElementById('orderQty');
-    let v = parseInt(el.value) || 1;
-    el.value = Math.max(1, Math.min(100, v));
-    updateTotal();
-}
+function changeQty(d) { const e = document.getElementById('orderQty'); e.value = Math.max(1, Math.min(100, (parseInt(e.value) || 1) + d)); updateTotal(); }
+function onQtyInput() { const e = document.getElementById('orderQty'); e.value = Math.max(1, Math.min(100, parseInt(e.value) || 1)); updateTotal(); }
 
 function updateTotal() {
     const sel = document.querySelector('.type-card.selected');
     if (!sel) return;
-    const typeId = sel.id.replace('type_', '');
-    const st = STATE.services.find(s => s.id === typeId);
+    const st = STATE.services.find(s => s.id === sel.id.replace('type_', ''));
     const qty = parseInt(document.getElementById('orderQty').value) || 1;
     const total = st.unitPrice * qty;
-    const tp = document.getElementById('totalPrice');
-    if (tp) tp.textContent = total;
-    const bp = document.getElementById('btnPrice');
-    if (bp) bp.textContent = total;
+    document.getElementById('totalPrice').textContent = total;
+    document.getElementById('fbAmount').textContent = '¥' + total;
+    document.getElementById('fbPlatform').textContent = '-¥' + (total * 0.15).toFixed(2);
+    document.getElementById('fbAlipay').textContent = '-¥' + (total * 0.006).toFixed(2);
+    document.getElementById('fbDashi').textContent = '¥' + (total * 0.844).toFixed(2);
+    document.getElementById('btnPrice').textContent = total;
 }
 
 async function submitOrder(typeId) {
-    const st = STATE.services.find(s => s.id === typeId);
     const qty = parseInt(document.getElementById('orderQty').value) || 1;
     const gameId = document.getElementById('gameId').value.trim();
     const note = document.getElementById('note').value.trim();
-
     if (!gameId) return toast('请输入游戏ID', 'error');
-
     try {
-        await api('/api/orders', {
-            method: 'POST',
-            body: { typeId, quantity: qty, gameId, note }
-        });
-        toast('下单成功！已派发给所有打手', 'success');
+        const order = await api('/api/orders', { method: 'POST', body: { typeId, quantity: qty, gameId, note } });
         document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
         document.getElementById('orderForm').classList.add('hidden');
+        showPayModal(order);
     } catch (e) { toast(e.message, 'error'); }
 }
 
-async function renderDashiHome(types) {
+async function showPayModal(order) {
+    showModal('<h2>请付款</h2><div class="qr-wrapper"><div id="qrCode"></div><div class="total">¥' + order.totalPrice.toFixed(2) + '</div><div class="pay-timer">请用支付宝扫码支付</div></div><button class="btn btn-outline btn-sm" style="margin-top:16px" onclick="cancelPay(' + order.id + ')">取消支付</button>');
+    try {
+        const pr = await api('/api/pay/create', { method: 'POST', body: { orderId: order.id } });
+        new QRCode(document.getElementById('qrCode'), { text: pr.qrCode, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' });
+        startPolling(order.id);
+    } catch (e) { closeModal(); toast(e.message, 'error'); }
+}
+
+function startPolling(orderId) {
+    STATE.pollingTimer = setInterval(async () => {
+        try {
+            const s = await api('/api/pay/status/' + orderId);
+            if (s.paid) { clearInterval(STATE.pollingTimer); STATE.pollingTimer = null; closeModal(); toast('支付成功！已派发给打手', 'success'); }
+        } catch (_) {}
+    }, 2000);
+}
+
+async function cancelPay(orderId) {
+    if (STATE.pollingTimer) { clearInterval(STATE.pollingTimer); STATE.pollingTimer = null; }
+    try { await api('/api/orders/' + orderId + '/cancel', { method: 'PUT' }); } catch (_) {}
+    closeModal(); toast('已取消', 'info');
+}
+
+// ============ 打手首页 ============
+async function renderDashiHome() {
     const pc = document.getElementById('pageContent');
     try {
         const pending = await api('/api/orders/pending');
-        STATE.pendingOrders = pending;
-
-        let ordersHtml = '';
-        if (pending.length === 0) {
-            ordersHtml = '<div class="tip">暂无待接订单</div>';
-        } else {
-            ordersHtml = pending.map(o => `
-                <div class="order-item">
-                    <div class="header"><span class="type">${o.typeName} x${o.quantity}</span><span class="badge badge-pending">待接单</span></div>
-                    <div class="info">
-                        ${o.unitAmount}×${o.quantity} | ¥${o.totalPrice}<br>
-                        顾客：${o.customerName} | 游戏ID：${o.gameId}<br>
-                        ${o.note ? '备注：' + o.note + '<br>' : ''}时间：${o.time}
-                    </div>
-                    <div class="actions"><button class="btn btn-success btn-sm" onclick="acceptOrder(${o.id})">接单</button></div>
-                </div>`).join('');
-        }
-
-        pc.innerHTML = `
-            <div class="card"><h3>🔫 欢迎，${STATE.user.name}</h3><p style="color:#64748b;font-size:13px">打手 | 等待接单</p></div>
-            <div class="card"><h3>📡 待接订单（${pending.length}）</h3><button class="btn btn-outline btn-sm" onclick="loadHome()" style="margin-bottom:10px">刷新</button>${ordersHtml}</div>`;
-    } catch (e) {
-        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '<br><button class="btn btn-outline btn-sm" onclick="loadHome()" style="margin-top:10px">重试</button></div>';
-    }
+        let html = pending.length === 0 ? '<div class="tip">暂无待接订单</div>' : pending.map(o => `
+            <div class="order-item">
+                <div class="header"><span class="type">${o.typeName} x${o.quantity}</span><span class="badge badge-pending">待接单</span></div>
+                <div class="info">${o.unitAmount}×${o.quantity} | ¥${o.totalPrice}<br>顾客：${o.customerName} | 游戏ID：${o.gameId}<br><span class="dashi-row">打手收入：¥${o.dashiIncome.toFixed(2)}</span><br>${o.note ? '备注：'+o.note+'<br>' : ''}${o.time}</div>
+                <div class="actions"><button class="btn btn-success btn-sm" onclick="acceptOrder(${o.id})">接单</button></div>
+            </div>`).join('');
+        pc.innerHTML = `<div class="card"><h3>欢迎，${STATE.user.name}</h3><p style="color:#64748b;font-size:13px">打手</p></div>
+            <div class="card"><h3>待接订单（${pending.length}）</h3><button class="btn btn-outline btn-sm" onclick="loadHome()" style="margin-bottom:10px">刷新</button>${html}</div>`;
+    } catch (e) { pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>'; }
 }
 
 async function acceptOrder(oid) {
-    try {
-        await api('/api/orders/' + oid + '/accept', { method: 'PUT' });
-        toast('接单成功', 'success');
-        loadHome();
-    } catch (e) { toast(e.message, 'error'); }
+    try { await api('/api/orders/' + oid + '/accept', { method: 'PUT' }); toast('接单成功', 'success'); loadHome(); }
+    catch (e) { toast(e.message, 'error'); }
 }
 
 // ============ 我的订单 ============
@@ -473,65 +391,26 @@ async function loadOrders() {
     const pc = document.getElementById('pageContent');
     pc.innerHTML = '<div class="tip">加载中...</div>';
     try {
-        const orders = await api('/api/orders/my');
-        STATE.orders = orders;
-        renderOrders();
-    } catch (e) {
-        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>';
-    }
-}
-
-function renderOrders() {
-    const pc = document.getElementById('pageContent');
-    const orders = STATE.orders;
-    if (orders.length === 0) {
-        pc.innerHTML = '<div class="tip">暂无订单</div>';
-        return;
-    }
-    pc.innerHTML = orders.map(o => {
-        let actionHtml = '';
-        if (STATE.user.role === 'guke' && o.status === 'pending') {
-            actionHtml = '<button class="btn btn-danger btn-sm" onclick="cancelOrder(' + o.id + ')">取消</button>';
-        }
-        if (STATE.user.role === 'dashi' && o.status === 'accepted') {
-            actionHtml = '<button class="btn btn-success btn-sm" onclick="completeOrder(' + o.id + ')">标记完成</button>';
-        }
-        return `
-            <div class="order-item ${o.status}">
-                <div class="header">
-                    <span class="type">${o.typeName} x${o.quantity}</span>
-                    <span class="badge badge-${o.status}">${statusLabel(o.status)}</span>
-                </div>
-                <div class="info">
-                    ${o.unitAmount}×${o.quantity} | ¥${o.totalPrice}<br>
-                    游戏ID：${o.gameId}<br>
-                    ${o.dashiName ? '打手：' + o.dashiName + '<br>' : ''}${o.note ? '备注：' + o.note + '<br>' : ''}${o.time}
-                </div>
-                ${actionHtml ? '<div class="actions">' + actionHtml + '</div>' : ''}
+        STATE.orders = await api('/api/orders/my');
+        if (STATE.orders.length === 0) { pc.innerHTML = '<div class="tip">暂无订单</div>'; return; }
+        pc.innerHTML = STATE.orders.map(o => {
+            let actions = '';
+            if (STATE.user.role === 'guke' && o.status === 'unpaid') actions = '<button class="btn btn-primary btn-sm" onclick="continuePay(' + o.id + ')">继续付款</button><button class="btn btn-danger btn-sm" onclick="cancelOrder(' + o.id + ')">取消</button>';
+            if (STATE.user.role === 'dashi' && o.status === 'accepted') actions = '<button class="btn btn-success btn-sm" onclick="completeOrder(' + o.id + ')">标记完成</button>';
+            let feeHtml = o.status !== 'unpaid' && o.dashiIncome !== undefined ? '<span class="fee-row">平台：¥' + o.platformFee.toFixed(2) + '</span> | <span class="fee-row">手续费：¥' + o.alipayFee.toFixed(2) + '</span> | <span class="dashi-row">打手：¥' + o.dashiIncome.toFixed(2) + '</span><br>' : '';
+            const sl = { unpaid: '待付款', pending: '待接单', accepted: '进行中', completed: '待结算', settled: '已结算', cancelled: '已取消' };
+            return `<div class="order-item ${o.status}">
+                <div class="header"><span class="type">${o.typeName} x${o.quantity}</span><span class="badge badge-${o.status}">${sl[o.status]}</span></div>
+                <div class="info">${o.unitAmount}×${o.quantity} | ¥${o.totalPrice.toFixed(2)}<br>游戏ID：${o.gameId}<br>${feeHtml}${o.dashiName ? '打手：'+o.dashiName+'<br>' : ''}${o.note ? '备注：'+o.note+'<br>' : ''}${o.time}${o.paidAt ? '<br>支付：'+o.paidAt : ''}</div>
+                ${actions ? '<div class="actions">'+actions+'</div>' : ''}
             </div>`;
-    }).join('');
+        }).join('');
+    } catch (e) { pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>'; }
 }
 
-function statusLabel(s) {
-    const map = { pending: '待接单', accepted: '进行中', completed: '已完成', cancelled: '已取消', rejected: '已拒绝' };
-    return map[s] || s;
-}
-
-async function cancelOrder(oid) {
-    try {
-        await api('/api/orders/' + oid + '/cancel', { method: 'PUT' });
-        toast('已取消', 'success');
-        loadOrders();
-    } catch (e) { toast(e.message, 'error'); }
-}
-
-async function completeOrder(oid) {
-    try {
-        await api('/api/orders/' + oid + '/complete', { method: 'PUT' });
-        toast('标记完成', 'success');
-        loadOrders();
-    } catch (e) { toast(e.message, 'error'); }
-}
+function continuePay(oid) { const o = STATE.orders.find(o => o.id === oid); if (o) showPayModal(o); }
+async function cancelOrder(oid) { try { await api('/api/orders/' + oid + '/cancel', { method: 'PUT' }); toast('已取消', 'success'); loadOrders(); } catch (e) { toast(e.message, 'error'); } }
+async function completeOrder(oid) { try { await api('/api/orders/' + oid + '/complete', { method: 'PUT' }); toast('完成，等待结算', 'success'); loadOrders(); } catch (e) { toast(e.message, 'error'); } }
 
 // ============ 管理员 ============
 async function loadAdmin() {
@@ -539,65 +418,43 @@ async function loadAdmin() {
     pc.innerHTML = '<div class="tip">加载中...</div>';
     try {
         const [orders, users] = await Promise.all([api('/api/admin/orders'), api('/api/admin/users')]);
-        renderAdmin(orders, users);
-    } catch (e) {
-        pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>';
-    }
+        const total = orders.filter(o => o.status !== 'cancelled' && o.status !== 'unpaid').reduce((s, o) => s + (o.totalPrice || 0), 0);
+        const oh = orders.length === 0 ? '<div class="tip">无订单</div>' : `<div style="overflow-x:auto"><table class="admin-table">
+            <tr><th>ID</th><th>类型</th><th>量</th><th>金额</th><th>顾客</th><th>打手</th><th>打手收入</th><th>状态</th><th>操作</th></tr>
+            ${orders.map(o => '<tr><td>'+o.id+'</td><td>'+o.typeName+'</td><td>'+o.quantity+'</td><td>¥'+(o.totalPrice||0).toFixed(2)+'</td><td>'+o.customerName+'</td><td>'+(o.dashiName||'-')+'</td><td>¥'+(o.dashiIncome||0).toFixed(2)+'</td><td>'+({unpaid:'待付',pending:'待接',accepted:'进行中',completed:'待结算',settled:'已结算',cancelled:'已取消'}[o.status]||o.status)+'</td><td>'+(o.status==='completed'?'<button class="btn btn-warning btn-sm" onclick="settleOrder('+o.id+')">结算</button>':'')+'</td></tr>').join('')}
+        </table></div>`;
+        const uh = users.length === 0 ? '<div class="tip">无用户</div>' : `<div style="overflow-x:auto"><table class="admin-table">
+            <tr><th>ID</th><th>名称</th><th>角色</th><th>完成数</th><th>累计收入</th></tr>
+            ${users.map(u => '<tr><td>'+u.id+'</td><td>'+u.name+'</td><td>'+(u.role==='dashi'?'打手':'顾客')+'</td><td>'+(u.completedOrders||0)+'</td><td>¥'+(u.totalEarned||0).toFixed(2)+'</td></tr>').join('')}
+        </table></div>`;
+        pc.innerHTML = `<div class="card"><h3>管理员面板</h3><p style="color:#94a3b8;font-size:12px;margin-bottom:8px">已收款总额：¥${total.toFixed(2)}</p>
+            <button class="btn btn-danger btn-sm" onclick="adminCancelAll()" style="margin-right:8px">下架进行中</button>
+            <button class="btn btn-danger btn-sm" onclick="adminClearOrders()">清空订单</button></div>
+        <div class="card"><h3>全部订单 (${orders.length})</h3>${oh}</div>
+        <div class="card"><h3>全部用户 (${users.length})</h3>${uh}</div>`;
+    } catch (e) { pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>'; }
 }
 
-function renderAdmin(orders, users) {
-    const pc = document.getElementById('pageContent');
-    let ordersHtml = orders.length === 0 ? '<div class="tip">无订单</div>' : `
-        <div style="overflow-x:auto"><table class="admin-table">
-            <tr><th>ID</th><th>类型</th><th>数量</th><th>金额</th><th>顾客</th><th>打手</th><th>状态</th><th>时间</th></tr>
-            ${orders.map(o => `<tr><td>${o.id}</td><td>${o.typeName}</td><td>${o.quantity}</td><td>¥${o.totalPrice}</td><td>${o.customerName}</td><td>${o.dashiName || '-'}</td><td>${statusLabel(o.status)}</td><td>${o.time ? o.time.slice(5,16) : '-'}</td></tr>`).join('')}
-        </table></div>`;
-    let usersHtml = users.length === 0 ? '<div class="tip">无用户</div>' : `
-        <div style="overflow-x:auto"><table class="admin-table">
-            <tr><th>ID</th><th>名称</th><th>角色</th><th>完成数</th></tr>
-            ${users.map(u => `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.role === 'dashi' ? '打手' : '顾客'}</td><td>${u.completedOrders || 0}</td></tr>`).join('')}
-        </table></div>`;
-
-    pc.innerHTML = `
-        <div class="card"><h3>⚙️ 管理员面板</h3>
-            <button class="btn btn-danger btn-sm" onclick="adminCancelAll()" style="margin-right:8px">下架全部进行中订单</button>
-            <button class="btn btn-danger btn-sm" onclick="adminClearOrders()">清空订单</button>
-        </div>
-        <div class="card"><h3>📋 全部订单 (${orders.length})</h3>${ordersHtml}</div>
-        <div class="card"><h3>👥 全部用户 (${users.length})</h3>${usersHtml}</div>`;
+async function settleOrder(oid) {
+    if (!confirm('确认已手动转账给打手？')) return;
+    try { await api('/api/orders/' + oid + '/settle', { method: 'PUT' }); toast('已结算', 'success'); loadAdmin(); }
+    catch (e) { toast(e.message, 'error'); }
 }
-
 async function adminCancelAll() {
-    if (!confirm('确定下架所有进行中/待确认订单？')) return;
-    try {
-        const r = await api('/api/admin/orders/cancel-all', { method: 'POST' });
-        toast(r.msg, 'success');
-        loadAdmin();
-    } catch (e) { toast(e.message, 'error'); }
+    if (!confirm('确定下架所有进行中/待接订单？')) return;
+    try { const r = await api('/api/admin/orders/cancel-all', { method: 'POST' }); toast(r.msg, 'success'); loadAdmin(); }
+    catch (e) { toast(e.message, 'error'); }
 }
-
 async function adminClearOrders() {
-    if (!confirm('确定清空全部订单？此操作不可恢复！')) return;
-    try {
-        await api('/api/admin/clear', { method: 'POST', body: { type: 'orders' } });
-        toast('已清空', 'success');
-        loadAdmin();
-    } catch (e) { toast(e.message, 'error'); }
+    if (!confirm('确定清空全部订单？')) return;
+    try { await api('/api/admin/clear', { method: 'POST', body: { type: 'orders' } }); toast('已清空', 'success'); loadAdmin(); }
+    catch (e) { toast(e.message, 'error'); }
 }
 
-// ============ 启动 ============
+// 启动
 if (STATE.token) {
-    api('/api/user').then(u => {
-        STATE.user = u;
-        render();
-    }).catch(() => {
-        STATE.token = null;
-        localStorage.removeItem('token');
-        render();
-    });
-} else {
-    render();
-}
+    api('/api/user').then(u => { STATE.user = u; render(); }).catch(() => { STATE.token = null; localStorage.removeItem('token'); render(); });
+} else { render(); }
 </script>
 </body>
 </html>
