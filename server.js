@@ -200,10 +200,13 @@ app.post('/api/pay/create', authMiddleware, (req, res) => {
             body: '游戏ID:' + o.gameId, timeoutExpress: '15m'
         }
     }).then(result => {
+        if (result.code !== '10000') {
+            return res.status(400).json({ error: '支付宝: ' + (result.subMsg || result.msg || '未知错误') });
+        }
         o.alipayOutTradeNo = outTradeNo;
         writeData('orders', orders);
         return res.json({ qrCode: result.qrCode, orderId, outTradeNo });
-    }).catch(err => { console.error(err); res.status(500).json({ error: '支付初始化失败' }); });
+    }).catch(err => { console.error(err); res.status(500).json({ error: '支付初始化失败: ' + err.message }); });
 });
 
 app.get('/api/pay/status/:id', authMiddleware, (req, res) => {
