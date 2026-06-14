@@ -288,8 +288,10 @@ app.post('/api/pay/status/:id', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/pay/notify', (req, res) => {
+    console.log('[pay-notify] ========== 收到回调 ==========');
     const body = req.body;
-    console.log('[pay-notify] 收到回调:', JSON.stringify(body));
+    console.log('[pay-notify] raw body:', JSON.stringify(body));
+    console.log('[pay-notify] all keys:', Object.keys(body).sort());
     const receivedSign = body.sign;
     if (!receivedSign) {
         console.log('[pay-notify] 缺少 sign 字段');
@@ -301,12 +303,16 @@ app.post('/api/pay/notify', (req, res) => {
         if (k === 'sign' || k === 'sign_type') continue;
         signParams[k] = String(v ?? '');
     }
+    const sorted = Object.keys(signParams).filter(k => signParams[k] !== '').sort();
+    console.log('[pay-notify] sign string (w/o key):', sorted.map(k => k + '=' + signParams[k]).join('&') + '&key=***');
     const computedSign = epaySign(signParams);
-    console.log('[pay-notify] 收到签名:', receivedSign, '计算签名:', computedSign);
+    console.log('[pay-notify] computedSign:', computedSign);
+    console.log('[pay-notify] receivedSign:', receivedSign);
     if (receivedSign !== computedSign) {
-        console.log('[pay-notify] 验签失败');
+        console.log('[pay-notify] 签名不匹配！');
         return res.send('fail');
     }
+    console.log('[pay-notify] 签名验证通过！');
     if (body.trade_status === 'TRADE_SUCCESS') {
         const orders = readData('orders');
         const o = orders.find(o => o.epayOutTradeNo === body.out_trade_no);
