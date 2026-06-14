@@ -4,6 +4,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const https = require('https');
 const { URL } = require('url');
+const qs = require('querystring');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -287,8 +288,15 @@ app.post('/api/pay/status/:id', authMiddleware, async (req, res) => {
     } catch { return res.json({ paid: false }); }
 });
 
-app.post('/api/pay/notify', (req, res) => {
+app.post('/api/pay/notify', express.text({ type: '*/*' }), (req, res) => {
     console.log('[pay-notify] ========== 收到回调 ==========');
+    // 兜底：如果全局 body parser 未解析（Content-Type 不匹配），手动从 text body 解析
+    if (!req.body || Object.keys(req.body).length === 0 || typeof req.body === 'string') {
+        const rawBody = typeof req.body === 'string' ? req.body : '';
+        console.log('[pay-notify] body parser 未生效，手动解析，Content-Type:', req.get('Content-Type'));
+        console.log('[pay-notify] raw body (前300字):', rawBody.substring(0, 300));
+        req.body = qs.parse(rawBody);
+    }
     const body = req.body;
     console.log('[pay-notify] raw body:', JSON.stringify(body));
     console.log('[pay-notify] all keys:', Object.keys(body).sort());
