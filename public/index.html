@@ -104,9 +104,11 @@ label{display:block;font-size:13px;color:#94a3b8;margin-bottom:4px;margin-top:10
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
+function loadUser() { try { const u = localStorage.getItem('user'); return u ? JSON.parse(u) : null; } catch (_) { return null; } }
+function saveUser(u) { if (u) localStorage.setItem('user', JSON.stringify(u)); else localStorage.removeItem('user'); }
 const STATE = {
     token: localStorage.getItem('token') || null,
-    user: null,
+    user: loadUser(),
     page: localStorage.getItem('page') || 'home',
     services: null,
     orders: [],
@@ -155,14 +157,17 @@ function render() {
 }
 
 function renderLogin() {
+    const remembered = STATE.user;
+    const tip = remembered ? '<div style="background:#1e293b;border:1px solid #334155;color:#fbbf24;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px">会话已过期，请重新登录。<br>欢迎回来，<b>' + remembered.name + '</b></div>' : '';
     const lp = document.getElementById('loginPage');
     lp.innerHTML = `<div class="container" style="text-align:center;padding-top:60px">
         <h1 style="font-size:22px;color:#f1f5f9;margin-bottom:6px">三角洲行动俱乐部</h1>
         <p style="color:#64748b;font-size:13px;margin-bottom:30px">打手接单 · 顾客派单 · 安全支付</p>
         <div class="card" style="text-align:left">
-            <div id="loginTabs" class="tabs">
+            ${tip}
+            <div id="loginTabs" class="tabs">` + (remembered ? '' : `
                 <button class="tab active" onclick="switchLoginTab('login')">登录</button>
-                <button class="tab" onclick="switchLoginTab('register')">注册</button>
+                <button class="tab" onclick="switchLoginTab('register')">注册</button>`) + `
             </div>
             <div id="loginForm"></div>
             <div style="text-align:center;margin-top:10px">
@@ -175,11 +180,13 @@ function renderLogin() {
 
 function switchLoginTab(tab) {
     const ct = document.getElementById('loginTabs');
-    ct.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === (tab === 'login' ? 0 : 1)));
+    const tabs = ct.querySelectorAll('.tab');
+    if (tabs.length) tabs.forEach((t, i) => t.classList.toggle('active', i === (tab === 'login' ? 0 : 1)));
+    const saved = STATE.user;
     if (tab === 'login') {
         document.getElementById('loginForm').innerHTML = `
-            <label>角色</label><select id="loginRole" class="input"><option value="guke">顾客</option><option value="dashi">打手</option></select>
-            <label>用户名</label><input id="loginName" class="input" placeholder="请输入用户名">
+            <label>角色</label><select id="loginRole" class="input"><option value="guke"${saved&&saved.role==='guke'?' selected':''}>顾客</option><option value="dashi"${saved&&saved.role==='dashi'?' selected':''}>打手</option></select>
+            <label>用户名</label><input id="loginName" class="input" placeholder="请输入用户名" value="${saved ? saved.name : ''}">
             <label>密码</label><input id="loginPass" class="input" type="password" placeholder="请输入密码">
             <label>安全码（打手必填）</label><input id="loginSafety" class="input" type="password" placeholder="安全码">
             <button class="btn btn-primary" style="margin-top:14px" onclick="doLogin()">登录</button>`;
@@ -202,7 +209,7 @@ async function doLogin() {
         if (role === 'dashi') body.safetyCode = document.getElementById('loginSafety').value;
         const data = await api('/api/login', { method: 'POST', body });
         STATE.token = data.token; STATE.user = data.user;
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', data.token); saveUser(data.user);
         render(); toast('登录成功', 'success');
     } catch (e) { toast(e.message, 'error'); }
 }
@@ -216,7 +223,7 @@ async function doRegister() {
         if (role === 'dashi') body.safetyCode = document.getElementById('regSafety').value;
         const data = await api('/api/register', { method: 'POST', body });
         STATE.token = data.token; STATE.user = data.user;
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', data.token); saveUser(data.user);
         render(); toast('注册成功', 'success');
     } catch (e) { toast(e.message, 'error'); }
 }
@@ -235,7 +242,7 @@ async function doAdminLogin() {
     try {
         const data = await api('/api/login', { method: 'POST', body: { name, password: '', role: 'admin', adminKey: document.getElementById('adminKey').value } });
         STATE.token = data.token; STATE.user = data.user;
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', data.token); saveUser(data.user);
         closeModal(); STATE.page = 'admin'; render(); toast('管理员登录成功', 'success');
     } catch (e) { toast(e.message, 'error'); }
 }
@@ -255,7 +262,7 @@ function changePage(p) { STATE.page = p; localStorage.setItem('page', p); render
 
 async function doLogout() {
     try { await api('/api/logout', { method: 'POST' }); } catch (_) {}
-    STATE.token = null; STATE.user = null; localStorage.removeItem('token');
+    STATE.token = null; STATE.user = null; localStorage.removeItem('token'); saveUser(null);
     document.getElementById('loginPage').style.display = '';
     document.getElementById('appPage').classList.add('hidden');
 }
@@ -453,7 +460,7 @@ async function adminClearOrders() {
 
 // 启动
 if (STATE.token) {
-    api('/api/user').then(u => { STATE.user = u; render(); }).catch(() => { STATE.token = null; localStorage.removeItem('token'); render(); });
+    api('/api/user').then(u => { STATE.user = u; saveUser(u); render(); }).catch(() => { STATE.token = null; localStorage.removeItem('token'); render(); });
 } else { render(); }
 </script>
 </body>
