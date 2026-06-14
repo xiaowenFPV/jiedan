@@ -62,13 +62,6 @@ function httpGet(url) {
     });
 }
 
-// ============ 费率配置 ============
-const FEE = {
-    platform: 0.15,
-    alipay: 0.006,
-    dashi: 0.844
-};
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -92,10 +85,28 @@ function seedData() {
 }
 seedData();
 
-const SERVICE_TYPES = [
-    { id: 'paodao', name: '跑刀', unitPrice: 35, unitAmount: '500w游戏币' },
-    { id: 'huhang', name: '护航', unitPrice: 50, unitAmount: '1局' }
-];
+// ============ 服务配置（优先从文件加载） ============
+function loadServiceConfig() {
+    const file = path.join(DATA_DIR, 'services.json');
+    if (fs.existsSync(file)) {
+        try {
+            const cfg = JSON.parse(fs.readFileSync(file, 'utf-8'));
+            if (cfg && Array.isArray(cfg.services) && cfg.services.length > 0 && cfg.fee) return cfg;
+        } catch (_) { /* fall through */ }
+    }
+    const defaults = {
+        services: [
+            { id: 'paodao', name: '跑刀', unitPrice: 1, unitAmount: '500w游戏币' },
+            { id: 'huhang', name: '护航', unitPrice: 50, unitAmount: '1局' }
+        ],
+        fee: { platform: 0.15, alipay: 0.006, dashi: 0.844 }
+    };
+    writeData('services', defaults);
+    return defaults;
+}
+const serviceConfig = loadServiceConfig();
+const SERVICE_TYPES = serviceConfig.services;
+const FEE = serviceConfig.fee;
 
 // Token
 function generateToken() { return crypto.randomBytes(32).toString('hex'); }
@@ -370,6 +381,40 @@ app.post('/api/admin/clear', authMiddleware, adminMiddleware, (req, res) => {
     if (req.body.type === 'orders') { writeData('orders', []); return res.json({ ok: true, msg: '订单已清空' }); }
     if (req.body.type === 'all') { writeData('users', []); writeData('orders', []); writeData('tokens', []); return res.json({ ok: true, msg: '全部清空' }); }
     res.status(400).json({ error: 'type: orders 或 all' });
+});
+
+app.get('/api/admin/services', authMiddleware, adminMiddleware, (req, res) => {
+    return res.json({ services: SERVICE_TYPES, fee: FEE });
+});
+
+app.put('/api/admin/services', authMiddleware, adminMiddleware, (req, res) => {
+    const { services, fee } = req.body;
+    if (!Array.isArray(services) || services.length === 0) {
+        return res.status(400).json({ error: 'services 必须为非空数组' });
+    }
+    const validIds = new Set(SERVICE_TYPES.map(s => s.id));
+    for (const svc of services) {
+        if (!validIds.has(svc.id)) return res.status(400).json({ error: '无效服务ID: ' + svc.id });
+        if (!svc.unitPrice || svc.unitPrice <= 0) return res.status(400).json({ error: svc.name + ' 单价必须为正数' });
+        if (!svc.name || !svc.name.trim()) return res.status(400).json({ error: '服务名称不能为空' });
+    }
+    if (fee) {
+        const sum = (fee.platform || 0) + (fee.alipay || 0) + (fee.dashi || 0);
+        if (sum < 0.999 || sum > 1.001) return res.status(400).json({ error: '费率合计必须接近1（当前' + sum.toFixed(4) + '）' });
+    }
+    // 更新内存中的配置
+    services.forEach(s => {
+        const idx = SERVICE_TYPES.findIndex(x => x.id === s.id);
+        if (idx >= 0) {
+            SERVICE_TYPES[idx].unitPrice = s.unitPrice;
+            SERVICE_TYPES[idx].unitAmount = s.unitAmount || SERVICE_TYPES[idx].unitAmount;
+            SERVICE_TYPES[idx].name = s.name.trim();
+        }
+    });
+    if (fee) { FEE.platform = fee.platform; FEE.alipay = fee.alipay; FEE.dashi = fee.dashi; }
+    // 持久化
+    writeData('services', { services: SERVICE_TYPES, fee: FEE });
+    return res.json({ services: SERVICE_TYPES, fee: FEE });
 });
 
 app.get('*', (req, res) => { if (req.path.startsWith('/api/')) return res.status(404).json({ error: '接口不存在' }); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
