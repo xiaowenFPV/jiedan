@@ -23,7 +23,7 @@ function epaySign(params) {
     const sorted = Object.keys(params)
         .filter(k => k !== 'sign' && k !== 'sign_type' && params[k] !== '' && params[k] !== undefined && params[k] !== null)
         .sort();
-    const str = sorted.map(k => k + '=' + params[k]).join('&') + EPAY_CONFIG.key;
+    const str = sorted.map(k => k + '=' + params[k]).join('&') + '&key=' + EPAY_CONFIG.key;
     return crypto.createHash('md5').update(str, 'utf8').digest('hex').toUpperCase();
 }
 
@@ -220,38 +220,49 @@ app.post('/api/pay/create', authMiddleware, async (req, res) => {
         if (o.status !== 'unpaid') return res.status(400).json({ error: '状态不允许支付' });
         const outTradeNo = 'ORDER_' + orderId + '_' + Date.now();
         const notifyUrl = process.env.PAY_NOTIFY_URL || (req.protocol + '://' + req.get('host') + '/api/pay/notify');
+        const productName = '三角洲-' + o.typeName + ' x' + o.quantity;
+        const clientIp = req.headers['x-forwarded-for'] || req.ip || '127.0.0.1';
         const params = {
             pid: EPAY_CONFIG.pid,
             type: payType || 'alipay',
+            paytype_code: payType || 'alipay',
             out_trade_no: outTradeNo,
             notify_url: notifyUrl,
-            return_url: '',
-            name: '三角洲-' + o.typeName + ' x' + o.quantity,
-            money: o.totalPrice.toFixed(2),
+            name: productName,
+            subject: productName,
+            total_amount: o.totalPrice.toFixed(2),
+            client_ip: clientIp,
+            timestamp: Math.floor(Date.now() / 1000),
             sign_type: 'MD5'
         };
         params.sign = epaySign(params);
-        const result = await httpPost(EPAY_CONFIG.apiUrl + '/mapi.php', params);
+        const result = await httpPost(EPAY_CONFIG.apiUrl + '/openapi/pay/create', params);
         if (result.code !== 1) {
             return res.status(400).json({ error: '支付网关: ' + (result.msg || '未知错误') });
         }
         o.epayOutTradeNo = outTradeNo;
         o.payType = params.type;
         writeData('orders', orders);
-        return res.json({ qrCode: result.qrcode || result.payurl, orderId, outTradeNo, payType: params.type });
+        return res.json({ payUrl: result.data && result.data.pay_url, orderId, outTradeNo, payType: params.type });
     } catch (err) { console.error(err); res.status(500).json({ error: '支付初始化失败: ' + err.message }); }
 });
 
-app.get('/api/pay/status/:id', authMiddleware, async (req, res) => {
+app.post('/api/pay/status/:id', authMiddleware, async (req, res) => {
     try {
         const orders = readData('orders');
         const o = orders.find(o => o.id === parseInt(req.params.id));
         if (!o) return res.status(404).json({ error: '订单不存在' });
         if (o.status !== 'unpaid') return res.json({ paid: true, order: o });
         if (!o.epayOutTradeNo) return res.json({ paid: false });
-        const queryUrl = EPAY_CONFIG.apiUrl + '/api.php?act=order&pid=' + EPAY_CONFIG.pid + '&key=' + EPAY_CONFIG.key + '&out_trade_no=' + o.epayOutTradeNo;
-        const result = await httpGet(queryUrl);
-        if (result.code === 1 && result.status === 1) {
+        const params = {
+            pid: EPAY_CONFIG.pid,
+            out_trade_no: o.epayOutTradeNo,
+            timestamp: Math.floor(Date.now() / 1000),
+            sign_type: 'MD5'
+        };
+        params.sign = epaySign(params);
+        const result = await httpPost(EPAY_CONFIG.apiUrl + '/openapi/pay/query', params);
+        if (result.code === 1 && result.data && result.data.trade_status === 'TRADE_SUCCESS') {
             o.status = 'pending';
             o.paidAt = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
             writeData('orders', orders);
