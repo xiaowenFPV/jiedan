@@ -2,8 +2,8 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { AlipaySdk } = require('alipay-sdk');
-// AlipayFormData no longer needed in v4 - params.bizContent used directly
+const https = require('https');
+const { URL } = require('url');
 
 const app = express();
 const PORT = process.env.PORT || 3456;
@@ -11,30 +11,56 @@ const DATA_DIR = path.join(__dirname, 'data');
 const SAFETY_CODE = '123456';
 const ADMIN_KEY = '880123';
 
-// ============ 支付宝当面付配置 ============
-const ALIPAY_CONFIG = {
-    appId: '2021006158694780',
-    privateKey: `-----BEGIN RSA PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCFOcqtrQsFlAZ1k8mZslSHP0uBZXBl6XZPUMVc1U5h27FEi+hpalVgpPy9wql0JoGfk+ASS8MRXGmnazzx95n4nTlR+sekx765OkylQfKzNQiXiKmNqbgQZHsGhTQt0OofiYQcnZdOp/FN+YOuBAnESMoPWoBijhuxRMyDPVbwYJ3QhxW647/EQ2pqnlvnt4EQ4yDMYmdlYFRwyy4xhqgDqlqY/2rvmsOf0cjmM+1jS+7H5I5RNu/kUAAeLzuDK6GdxaZLw4NUAniMGmF2T0BmCmGXMWan6QmzIktEC60yAmQV2Qy8qRw7/4ctViksca7NThwoxP3YN87P66xB+zKnAgMBAAECggEAV0oyXfEPU6xVPxyB7s5FTAhQtIt+RYfeGMHXTqgEH2IOl9cDhG5DWns/jiXJWW0RaTk+iz5QpUNjhmphGDkfDSIWuHwT6wdlE3/7UBwRpRGOe5rzXPpiu3rakL8eHRbRD7DOeuFWjhbDqE9f09iZfZ4jpkOp8ukhg9iMF0FNgVkUpn68+IioTWCPz/8mtDI46W0CoWA0zTLFWPitYNeK6IAXl9ov5ASWGLp0ktXAVD/kLMS6ZP5OMq2ziRQ2CRgueKBbPBrb923jpg7Gj2yGDyyagHBgtZWkh/XqvVrYV91xs2UoLLC7v0VpcCyPhvgyOlpitU/C0pvjEprJQ8vOoQKBgQDmMoM3VcFv+Y4rYPh/OQW+VXuNU9v07XnUFSuqJ70Ssl8mCzDIEDwKPVsKt+ZRx5nHMrfs1f+dT5QmDvqAcbZwM2Q4fVVEcbxbXDQwjtCgHYc459ayNYsoiH7Uhn1nvJAYM87qODdpwgHZq+981j0tZTqPsXQcWQEsyjG9zqRurQKBgQCUKLC9j8+UpobPAAURY3+gj6IrGeHpgV7LpSfobQ7WTQ4PeMmCtpy8+ku9E4JEe3occS75Cb8vYGngK+tn4ZtmHPSjgfCqa9ZlLqUJZnBbS4Zqf0LZzbw6/VBvfsfH3PTl+o+0qn+3fALTFEm/j3bFEd1u2YENK8F8O8bhmvd1IwKBgQC2ueX6qLHR5rB5spHOuz7Z5RUcDDMPaupH9T4h5UVqb/ijRELGrExcfHOmQHAs/loNCy+AaiZrgt3AkCc8igcdbU3ioWpr2DSB+ODcoqDsWEQcYbvE3kfGNwMmRFOLYtymuYlH1rP12TCKzrZdy9noDPC9W0klr2kFWsK9Pii8SQKBgBA7VQGvm8JhbCuJiQSargTdN5sZPtLiRYxyD6k7KYD4+C1hwlH7x7g8g8e3N3JhRMOQ8uB93OBH49GXfjbnVKsfSP4Q4lkJb3euYI5jFrQp1hQc1SofjBu6XPGaJjETWBFKHixg8ZUclQKjGmFOSmjUyDm4wpa60HvX4LYe0DWZAoGBAIgWsYszf8yI1Yei5T0vfLJBxAVIOHpWAyqoMrN0kTkj1F5zGJJIywQ73W+A7JXW4Ok4/iN6YmLPVZQEm0gPuPCpKp+5dYdowF5Pu/40a+VlbSPNAeUP7DvIrKCDNhsAfxJLsYCLsZom53ZlY7USUCF55k/QpETjXfZiIuElk1Dn
------END RSA PRIVATE KEY-----`,
-    alipayPublicKey: `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi540OGecyCjQ6NyUeJ2gGhfMlYljJCoCj0IPt2XcsI3T5RzReeSuandpd2c3qw0pm7V1NeYuzBdI11OH6u49Gow60S3DGqcyq4xZn/ZnllYLS0EO0Rz9GLEox2Q5/NIPW7ti6a6dvWXg8FofSS9RFpXoaFUuRgQ9XLo2tvyhsNAaRBf01dd0zeqizNiiVG363YYsX6dBmF5jZaMcUxxoYtzJPcpJkjGZQi1+sMkVJaSxZ69wcNwt4GHRRx5KKGSdBARSDIzoWI8tIOvxwjcZi8JJuppeQ1tdmQJmTwYniZhEi+NHNl5iy626d2NosLoYPXU2sE6MnfQZ8EN8LFYvfQIDAQAB
------END PUBLIC KEY-----`,
-    gateway: 'https://openapi.alipay.com/gateway.do',
-    charset: 'utf-8',
-    version: '1.0',
-    signType: 'RSA2'
+// ============ NestPay 易支付配置 ============
+const EPAY_CONFIG = {
+    pid: process.env.EPAY_PID || '2088134367467082',
+    key: process.env.EPAY_KEY || 'BMPV8VU723MQXY5ULI1PCKCLHYJO13JS',
+    apiUrl: process.env.EPAY_API_URL || 'https://nestpay.cn'
 };
 
-const alipaySdk = new AlipaySdk({
-    appId: ALIPAY_CONFIG.appId,
-    privateKey: ALIPAY_CONFIG.privateKey,
-    alipayPublicKey: ALIPAY_CONFIG.alipayPublicKey,
-    gateway: ALIPAY_CONFIG.gateway,
-    charset: ALIPAY_CONFIG.charset,
-    version: ALIPAY_CONFIG.version,
-    signType: ALIPAY_CONFIG.signType
-});
+// 易支付签名：参数名 ASCII 排序 + key → MD5 大写
+function epaySign(params) {
+    const sorted = Object.keys(params)
+        .filter(k => k !== 'sign' && k !== 'sign_type' && params[k] !== '' && params[k] !== undefined && params[k] !== null)
+        .sort();
+    const str = sorted.map(k => k + '=' + params[k]).join('&') + EPAY_CONFIG.key;
+    return crypto.createHash('md5').update(str, 'utf8').digest('hex').toUpperCase();
+}
+
+// HTTP POST 助手（用于调用易支付 API）
+function httpPost(url, formData) {
+    return new Promise((resolve, reject) => {
+        const u = new URL(url);
+        const body = new URLSearchParams(formData).toString();
+        const options = {
+            hostname: u.hostname, port: u.port || 443, path: u.pathname + u.search,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(body) }
+        };
+        const req = https.request(options, (resp) => {
+            let data = '';
+            resp.on('data', c => data += c);
+            resp.on('end', () => {
+                try { resolve(JSON.parse(data)); } catch { resolve(data); }
+            });
+        });
+        req.on('error', reject);
+        req.write(body);
+        req.end();
+    });
+}
+
+function httpGet(url) {
+    return new Promise((resolve, reject) => {
+        https.get(url, (resp) => {
+            let data = '';
+            resp.on('data', c => data += c);
+            resp.on('end', () => {
+                try { resolve(JSON.parse(data)); } catch { resolve(data); }
+            });
+        }).on('error', reject);
+    });
+}
 
 // ============ 费率配置 ============
 const FEE = {
@@ -184,60 +210,70 @@ app.post('/api/orders', authMiddleware, (req, res) => {
 });
 
 // ============ 支付 ============
-app.post('/api/pay/create', authMiddleware, (req, res) => {
-    const { orderId } = req.body;
-    const orders = readData('orders');
-    const o = orders.find(o => o.id === orderId);
-    if (!o) return res.status(404).json({ error: '订单不存在' });
-    if (o.customerId !== req.user.id) return res.status(403).json({ error: '权限不足' });
-    if (o.status !== 'unpaid') return res.status(400).json({ error: '状态不允许支付' });
-    const outTradeNo = 'ORDER_' + orderId + '_' + Date.now();
-    alipaySdk.exec('alipay.trade.precreate', {
-        notifyUrl: process.env.PAY_NOTIFY_URL || (req.protocol + '://' + req.get('host') + '/api/pay/notify'),
-        bizContent: {
-            outTradeNo, totalAmount: o.totalPrice.toFixed(2),
-            subject: '三角洲-' + o.typeName + ' x' + o.quantity,
-            body: '游戏ID:' + o.gameId, timeoutExpress: '15m'
+app.post('/api/pay/create', authMiddleware, async (req, res) => {
+    try {
+        const { orderId, payType } = req.body;
+        const orders = readData('orders');
+        const o = orders.find(o => o.id === orderId);
+        if (!o) return res.status(404).json({ error: '订单不存在' });
+        if (o.customerId !== req.user.id) return res.status(403).json({ error: '权限不足' });
+        if (o.status !== 'unpaid') return res.status(400).json({ error: '状态不允许支付' });
+        const outTradeNo = 'ORDER_' + orderId + '_' + Date.now();
+        const notifyUrl = process.env.PAY_NOTIFY_URL || (req.protocol + '://' + req.get('host') + '/api/pay/notify');
+        const params = {
+            pid: EPAY_CONFIG.pid,
+            type: payType || 'alipay',
+            out_trade_no: outTradeNo,
+            notify_url: notifyUrl,
+            return_url: '',
+            name: '三角洲-' + o.typeName + ' x' + o.quantity,
+            money: o.totalPrice.toFixed(2),
+            sign_type: 'MD5'
+        };
+        params.sign = epaySign(params);
+        const result = await httpPost(EPAY_CONFIG.apiUrl + '/mapi.php', params);
+        if (result.code !== 1) {
+            return res.status(400).json({ error: '支付网关: ' + (result.msg || '未知错误') });
         }
-    }).then(result => {
-        if (result.code !== '10000') {
-            return res.status(400).json({ error: '支付宝: ' + (result.subMsg || result.msg || '未知错误') });
-        }
-        o.alipayOutTradeNo = outTradeNo;
+        o.epayOutTradeNo = outTradeNo;
+        o.payType = params.type;
         writeData('orders', orders);
-        return res.json({ qrCode: result.qrCode, orderId, outTradeNo });
-    }).catch(err => { console.error(err); res.status(500).json({ error: '支付初始化失败: ' + err.message }); });
+        return res.json({ qrCode: result.qrcode || result.payurl, orderId, outTradeNo, payType: params.type });
+    } catch (err) { console.error(err); res.status(500).json({ error: '支付初始化失败: ' + err.message }); }
 });
 
-app.get('/api/pay/status/:id', authMiddleware, (req, res) => {
-    const orders = readData('orders');
-    const o = orders.find(o => o.id === parseInt(req.params.id));
-    if (!o) return res.status(404).json({ error: '订单不存在' });
-    if (o.status !== 'unpaid') return res.json({ paid: true, order: o });
-    if (!o.alipayOutTradeNo) return res.json({ paid: false });
-    alipaySdk.exec('alipay.trade.query', {
-        bizContent: { outTradeNo: o.alipayOutTradeNo }
-    }).then(result => {
-        if (result.code === '10000' && result.tradeStatus === 'TRADE_SUCCESS') {
+app.get('/api/pay/status/:id', authMiddleware, async (req, res) => {
+    try {
+        const orders = readData('orders');
+        const o = orders.find(o => o.id === parseInt(req.params.id));
+        if (!o) return res.status(404).json({ error: '订单不存在' });
+        if (o.status !== 'unpaid') return res.json({ paid: true, order: o });
+        if (!o.epayOutTradeNo) return res.json({ paid: false });
+        const queryUrl = EPAY_CONFIG.apiUrl + '/api.php?act=order&pid=' + EPAY_CONFIG.pid + '&key=' + EPAY_CONFIG.key + '&out_trade_no=' + o.epayOutTradeNo;
+        const result = await httpGet(queryUrl);
+        if (result.code === 1 && result.status === 1) {
             o.status = 'pending';
             o.paidAt = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
             writeData('orders', orders);
             return res.json({ paid: true, order: o });
         }
         return res.json({ paid: false });
-    }).catch(() => res.json({ paid: false }));
+    } catch { return res.json({ paid: false }); }
 });
 
 app.post('/api/pay/notify', (req, res) => {
     const body = req.body;
-    if (!alipaySdk.checkNotifySign(body)) return res.send('fail');
+    const receivedSign = body.sign;
+    if (!receivedSign) return res.send('fail');
+    const computedSign = epaySign(body);
+    if (receivedSign !== computedSign) return res.send('fail');
     if (body.trade_status === 'TRADE_SUCCESS') {
         const orders = readData('orders');
-        const o = orders.find(o => o.alipayOutTradeNo === body.out_trade_no);
+        const o = orders.find(o => o.epayOutTradeNo === body.out_trade_no);
         if (o && o.status === 'unpaid') {
             o.status = 'pending';
             o.paidAt = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
-            o.buyerAccount = body.buyer_logon_id || '';
+            o.buyerAccount = body.buyer_email || '';
             writeData('orders', orders);
         }
     }

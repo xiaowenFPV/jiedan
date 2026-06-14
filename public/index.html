@@ -90,6 +90,11 @@ label{display:block;font-size:13px;color:#94a3b8;margin-bottom:4px;margin-top:10
 
 .qr-wrapper{display:flex;flex-direction:column;align-items:center;gap:16px}
 .pay-timer{color:#f59e0b;font-size:13px;margin-top:8px}
+.pay-methods{display:flex;gap:12px;margin-bottom:16px}
+.pay-method{cursor:pointer;border:2px solid #334155;border-radius:10px;padding:12px 20px;text-align:center;font-size:14px;font-weight:600;transition:all .2s;flex:1}
+.pay-method:hover{border-color:#3b82f6}
+.pay-method.selected{border-color:#3b82f6;background:#1e3a5f;color:#60a5fa}
+.pay-method .pay-icon{font-size:24px;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -308,7 +313,7 @@ function selectType(typeId) {
             <div class="fee-breakdown">
                 <div><span class="label">商品金额</span><span class="val" id="fbAmount">¥${st.unitPrice}</span></div>
                 <div><span class="label">平台服务费（15%）</span><span class="val deduct" id="fbPlatform">-¥${(st.unitPrice*0.15).toFixed(2)}</span></div>
-                <div><span class="label">支付宝手续费（0.6%）</span><span class="val deduct" id="fbAlipay">-¥${(st.unitPrice*0.006).toFixed(2)}</span></div>
+                <div><span class="label">支付手续费（0.6%）</span><span class="val deduct" id="fbAlipay">-¥${(st.unitPrice*0.006).toFixed(2)}</span></div>
                 <div style="border-top:1px solid #1e293b;margin-top:4px;padding-top:4px"><span class="label">打手所得（84.4%）</span><span class="val income" id="fbDashi">¥${(st.unitPrice*0.844).toFixed(2)}</span></div>
             </div>
             <label>游戏ID <span style="color:#ef4444">*</span></label>
@@ -349,12 +354,35 @@ async function submitOrder(typeId) {
 }
 
 async function showPayModal(order) {
-    showModal('<h2>请付款</h2><div class="qr-wrapper"><div id="qrCode"></div><div class="total">¥' + order.totalPrice.toFixed(2) + '</div><div class="pay-timer">请用支付宝扫码支付</div></div><button class="btn btn-outline btn-sm" style="margin-top:16px" onclick="cancelPay(' + order.id + ')">取消支付</button>');
+    showModal('<h2>选择支付方式</h2>'
+        + '<div class="pay-methods">'
+        + '<div class="pay-method selected" id="pmAlipay" onclick="selectPayMethod(\'alipay\')"><div class="pay-icon">&#x1f4f1;</div>支付宝</div>'
+        + '<div class="pay-method" id="pmWxpay" onclick="selectPayMethod(\'wxpay\')"><div class="pay-icon">&#x1f4f1;</div>微信支付</div>'
+        + '</div>'
+        + '<div class="qr-wrapper hidden" id="qrWrapper"><div id="qrCode"></div><div class="total">¥' + order.totalPrice.toFixed(2) + '</div><div class="pay-timer">请扫码支付</div></div>'
+        + '<button class="btn btn-primary" style="margin-top:16px;width:100%" id="btnCreatePay" onclick="createPayment(' + order.id + ')">生成二维码</button>'
+        + '<button class="btn btn-outline btn-sm" style="margin-top:8px;width:100%" onclick="cancelPay(' + order.id + ')">取消支付</button>');
+    STATE.payType = 'alipay';
+}
+
+function selectPayMethod(type) {
+    STATE.payType = type;
+    document.getElementById('pmAlipay').classList.toggle('selected', type === 'alipay');
+    document.getElementById('pmWxpay').classList.toggle('selected', type === 'wxpay');
+}
+
+async function createPayment(orderId) {
+    const qrWrapper = document.getElementById('qrWrapper');
+    const btn = document.getElementById('btnCreatePay');
+    btn.disabled = true; btn.textContent = '生成中...';
     try {
-        const pr = await api('/api/pay/create', { method: 'POST', body: { orderId: order.id } });
+        const pr = await api('/api/pay/create', { method: 'POST', body: { orderId, payType: STATE.payType } });
+        qrWrapper.classList.remove('hidden');
+        btn.style.display = 'none';
+        document.getElementById('qrCode').innerHTML = '';
         new QRCode(document.getElementById('qrCode'), { text: pr.qrCode, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' });
-        startPolling(order.id);
-    } catch (e) { closeModal(); toast(e.message, 'error'); }
+        startPolling(orderId);
+    } catch (e) { btn.disabled = false; btn.textContent = '生成二维码'; toast(e.message, 'error'); }
 }
 
 function startPolling(orderId) {
