@@ -6,6 +6,7 @@ const https = require('https');
 const { URL } = require('url');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3456;
 const DATA_DIR = path.join(__dirname, 'data');
 const SAFETY_CODE = '123456';
@@ -230,7 +231,7 @@ app.post('/api/pay/create', authMiddleware, async (req, res) => {
         if (o.customerId !== req.user.id) return res.status(403).json({ error: '权限不足' });
         if (o.status !== 'unpaid') return res.status(400).json({ error: '状态不允许支付' });
         const outTradeNo = 'ORDER_' + orderId + '_' + Date.now();
-        const notifyUrl = process.env.PAY_NOTIFY_URL || (req.protocol + '://' + req.get('host') + '/api/pay/notify');
+        const notifyUrl = process.env.PAY_NOTIFY_URL || ('https://' + req.get('host') + '/api/pay/notify');
         const productName = '三角洲-' + o.typeName + ' x' + o.quantity;
         const clientIp = req.headers['x-forwarded-for'] || req.ip || '127.0.0.1';
         const params = {
