@@ -231,7 +231,10 @@ app.post('/api/pay/create', authMiddleware, async (req, res) => {
         if (o.customerId !== req.user.id) return res.status(403).json({ error: '权限不足' });
         if (o.status !== 'unpaid') return res.status(400).json({ error: '状态不允许支付' });
         const outTradeNo = 'ORDER_' + orderId + '_' + Date.now();
-        const notifyUrl = process.env.PAY_NOTIFY_URL || ('https://' + req.get('host') + '/api/pay/notify');
+        const notifyUrl = process.env.PAY_NOTIFY_URL
+            || process.env.RENDER_EXTERNAL_URL
+            || ('https://' + (req.get('host') || 'hjm-8nbq.onrender.com') + '/api/pay/notify');
+        console.log('[pay-create] notify_url =', notifyUrl);
         const productName = '三角洲-' + o.typeName + ' x' + o.quantity;
         const clientIp = req.headers['x-forwarded-for'] || req.ip || '127.0.0.1';
         const params = {
