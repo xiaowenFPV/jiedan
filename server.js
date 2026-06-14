@@ -285,10 +285,24 @@ app.post('/api/pay/status/:id', authMiddleware, async (req, res) => {
 
 app.post('/api/pay/notify', (req, res) => {
     const body = req.body;
+    console.log('[pay-notify] 收到回调:', JSON.stringify(body));
     const receivedSign = body.sign;
-    if (!receivedSign) return res.send('fail');
-    const computedSign = epaySign(body);
-    if (receivedSign !== computedSign) return res.send('fail');
+    if (!receivedSign) {
+        console.log('[pay-notify] 缺少 sign 字段');
+        return res.send('fail');
+    }
+    // 验签：剥离 sign / sign_type 后计算签名（确保值统一为字符串）
+    const signParams = {};
+    for (const [k, v] of Object.entries(body)) {
+        if (k === 'sign' || k === 'sign_type') continue;
+        signParams[k] = String(v ?? '');
+    }
+    const computedSign = epaySign(signParams);
+    console.log('[pay-notify] 收到签名:', receivedSign, '计算签名:', computedSign);
+    if (receivedSign !== computedSign) {
+        console.log('[pay-notify] 验签失败');
+        return res.send('fail');
+    }
     if (body.trade_status === 'TRADE_SUCCESS') {
         const orders = readData('orders');
         const o = orders.find(o => o.epayOutTradeNo === body.out_trade_no);
@@ -297,9 +311,16 @@ app.post('/api/pay/notify', (req, res) => {
             o.paidAt = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
             o.buyerAccount = body.buyer_email || '';
             writeData('orders', orders);
+            console.log('[pay-notify] 订单 ' + o.id + ' 已标记为待接单');
+        } else if (!o) {
+            console.log('[pay-notify] 未找到订单 out_trade_no=' + body.out_trade_no);
+        } else {
+            console.log('[pay-notify] 订单 ' + o.id + ' 状态为 ' + o.status + '，跳过');
         }
+    } else {
+        console.log('[pay-notify] trade_status=' + body.trade_status + '，无需处理');
     }
-    res.send('success');
+    res.type('text/plain').send('success');
 });
 
 // ============ 订单操作 ============
