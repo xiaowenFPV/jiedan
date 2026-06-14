@@ -380,7 +380,7 @@ async function createPayment(orderId) {
         qrWrapper.classList.remove('hidden');
         btn.style.display = 'none';
         document.getElementById('qrCode').innerHTML = '';
-        new QRCode(document.getElementById('qrCode'), { text: pr.qrCode, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' });
+        new QRCode(document.getElementById('qrCode'), { text: pr.payUrl, width: 200, height: 200, colorDark: '#000', colorLight: '#fff' });
         startPolling(orderId);
     } catch (e) { btn.disabled = false; btn.textContent = '生成二维码'; toast(e.message, 'error'); }
 }
@@ -388,7 +388,7 @@ async function createPayment(orderId) {
 function startPolling(orderId) {
     STATE.pollingTimer = setInterval(async () => {
         try {
-            const s = await api('/api/pay/status/' + orderId);
+            const s = await api('/api/pay/status/' + orderId, { method: 'POST' });
             if (s.paid) { clearInterval(STATE.pollingTimer); STATE.pollingTimer = null; closeModal(); toast('支付成功！已派发给打手', 'success'); }
         } catch (_) {}
     }, 2000);
