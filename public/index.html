@@ -689,7 +689,7 @@ function saveFeeEdit(feeKey) {
     // 四舍五入到 3 位小数避免浮点误差
     newFee.platform = Math.round(newFee.platform * 1000) / 1000;
     newFee.alipay = Math.round(newFee.alipay * 1000) / 1000;
-    newFee.dashi = Math.round(1 - newFee.platform - newFee.alipay) * 1000 / 1000;
+    newFee.dashi = Math.round((1 - newFee.platform - newFee.alipay) * 1000) / 1000;
 
     // 最终兜底校验合计≈1
     const sum = newFee.platform + newFee.alipay + newFee.dashi;
