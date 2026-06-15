@@ -422,6 +422,41 @@ app.post('/api/admin/clear', authMiddleware, adminMiddleware, (req, res) => {
     res.status(400).json({ error: 'type: orders 或 all' });
 });
 
+// 管理员上架固定订单
+app.post('/api/admin/orders', authMiddleware, adminMiddleware, (req, res) => {
+    const { typeId, quantity, gameId, note, assignee } = req.body;
+    const st = SERVICE_TYPES.find(s => s.id === typeId);
+    if (!st) return res.status(400).json({ error: '无效服务类型' });
+    const qty = parseInt(quantity) || 1;
+    if (qty < 1 || qty > 100) return res.status(400).json({ error: '数量1-100' });
+    if (!gameId || !gameId.trim()) return res.status(400).json({ error: '游戏ID不能为空' });
+    const totalPrice = st.unitPrice * qty;
+    const platformFee = +(totalPrice * FEE.platform).toFixed(2);
+    const alipayFee = +(totalPrice * FEE.alipay).toFixed(2);
+    const dashiIncome = +(totalPrice * FEE.dashi).toFixed(2);
+    const orders = readData('orders');
+    // 可选：指定打手
+    let dashiId = null, dashiName = null;
+    if (assignee && assignee.trim()) {
+        const users = readData('users');
+        const dashi = users.find(u => (u.dashiId === assignee.trim() || u.name === assignee.trim()) && u.role === 'dashi');
+        if (dashi) { dashiId = dashi.dashiId; dashiName = dashi.name; }
+    }
+    const newOrder = {
+        id: orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1,
+        typeId, typeName: st.name, unitPrice: st.unitPrice, unitAmount: st.unitAmount,
+        quantity: qty, totalPrice, platformFee, alipayFee, dashiIncome,
+        customerName: '管理员上架', customerId: 0, gameId: gameId.trim(),
+        note: (note || '').trim(), status: dashiId ? 'accepted' : 'pending',
+        dashiId, dashiName,
+        time: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
+        paidAt: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
+    };
+    orders.unshift(newOrder);
+    writeData('orders', orders);
+    return res.json(newOrder);
+});
+
 app.get('/api/admin/services', authMiddleware, adminMiddleware, (req, res) => {
     return res.json({ services: SERVICE_TYPES, fee: FEE });
 });
@@ -437,7 +472,8 @@ app.put('/api/admin/services', authMiddleware, adminMiddleware, (req, res) => {
         if (!svc.unitPrice || svc.unitPrice <= 0) return res.status(400).json({ error: svc.name + ' 单价必须为正数' });
         if (!svc.name || !svc.name.trim()) return res.status(400).json({ error: '服务名称不能为空' });
     }
-    if (fee) {
+    // fee 可选：仅当显式传入且非空对象时才校验和更新费率
+    if (fee && typeof fee === 'object' && Object.keys(fee).length > 0) {
         const sum = (fee.platform || 0) + (fee.alipay || 0) + (fee.dashi || 0);
         if (sum < 0.999 || sum > 1.001) return res.status(400).json({ error: '费率合计必须接近1（当前' + sum.toFixed(4) + '）' });
     }
@@ -450,7 +486,7 @@ app.put('/api/admin/services', authMiddleware, adminMiddleware, (req, res) => {
             SERVICE_TYPES[idx].name = s.name.trim();
         }
     });
-    if (fee) { FEE.platform = fee.platform; FEE.alipay = fee.alipay; FEE.dashi = fee.dashi; }
+    if (fee && typeof fee === 'object' && Object.keys(fee).length > 0) { FEE.platform = fee.platform; FEE.alipay = fee.alipay; FEE.dashi = fee.dashi; }
     // 持久化
     writeData('services', { services: SERVICE_TYPES, fee: FEE });
     return res.json({ services: SERVICE_TYPES, fee: FEE });

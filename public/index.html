@@ -452,7 +452,7 @@ async function loadAdmin() {
     const pc = document.getElementById('pageContent');
     pc.innerHTML = '<div class="tip">加载中...</div>';
     try {
-        const [orders, users] = await Promise.all([api('/api/admin/orders'), api('/api/admin/users')]);
+        const [orders, users, servicesData] = await Promise.all([api('/api/admin/orders'), api('/api/admin/users'), api('/api/admin/services')]);
         const total = orders.filter(o => o.status !== 'cancelled' && o.status !== 'unpaid').reduce((s, o) => s + (o.totalPrice || 0), 0);
         const oh = orders.length === 0 ? '<div class="tip">无订单</div>' : `<div style="overflow-x:auto"><table class="admin-table">
             <tr><th>ID</th><th>类型</th><th>量</th><th>金额</th><th>顾客</th><th>打手</th><th>打手收入</th><th>状态</th><th>操作</th></tr>
@@ -465,8 +465,30 @@ async function loadAdmin() {
         pc.innerHTML = `<div class="card"><h3>管理员面板</h3><p style="color:#94a3b8;font-size:12px;margin-bottom:8px">已收款总额：¥${total.toFixed(2)}</p>
             <button class="btn btn-danger btn-sm" onclick="adminCancelAll()" style="margin-right:8px">下架进行中</button>
             <button class="btn btn-danger btn-sm" onclick="adminClearOrders()">清空订单</button></div>
+        <div class="card"><h3>上架固定订单</h3>
+            <label>服务类型</label><select id="publishType" class="input" onchange="updatePublishPreview()">
+                ${servicesData.services.map(s => `<option value="${s.id}">${s.name} — ¥${s.unitPrice} / ${s.unitAmount}</option>`).join('')}
+            </select>
+            <label>游戏ID <span style="color:#ef4444">*</span></label><input id="publishGameId" class="input" placeholder="请输入游戏内ID">
+            <label>数量</label>
+            <div class="qty-control" style="margin-bottom:10px">
+                <button onclick="publishChangeQty(-1)">-</button>
+                <input class="qty-input" id="publishQty" value="1" oninput="publishOnQtyInput()" type="number" min="1" max="100">
+                <button onclick="publishChangeQty(1)">+</button>
+            </div>
+            <label>指定打手（可选，输入打手名称或ID）</label><input id="publishAssignee" class="input" placeholder="留空则进入待接单池">
+            <label>备注</label><input id="publishNote" class="input" placeholder="选填">
+            <div class="fee-breakdown" style="margin-top:12px">
+                <div><span class="label">预估总价</span><span class="val" id="publishPreviewTotal">¥${servicesData.services[0].unitPrice}</span></div>
+                <div><span class="label">打手收入</span><span class="val income" id="publishPreviewDashi">¥${(servicesData.services[0].unitPrice * (servicesData.fee ? servicesData.fee.dashi : 0.844)).toFixed(2)}</span></div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="publishOrder()">上架订单</button>
+        </div>
         <div class="card"><h3>全部订单 (${orders.length})</h3>${oh}</div>
-        <div class="card"><h3>全部用户 (${users.length})</h3>${uh}</div>`;
+        <div class="card"><h3>全部用户 (${users.length})</h3>${uh}</div>
+        <div class="card"><h3>价格管理</h3><div id="adminServices">加载中…</div></div>`;
+        window._adminServices = servicesData;
+        renderServiceEditor(servicesData);
     } catch (e) { pc.innerHTML = '<div class="tip">加载失败：' + e.message + '</div>'; }
 }
 
@@ -484,6 +506,141 @@ async function adminClearOrders() {
     if (!confirm('确定清空全部订单？')) return;
     try { await api('/api/admin/clear', { method: 'POST', body: { type: 'orders' } }); toast('已清空', 'success'); loadAdmin(); }
     catch (e) { toast(e.message, 'error'); }
+}
+
+// ============ 管理员：上架固定订单 ============
+function publishChangeQty(d) { const e = document.getElementById('publishQty'); e.value = Math.max(1, Math.min(100, (parseInt(e.value) || 1) + d)); updatePublishPreview(); }
+function publishOnQtyInput() { const e = document.getElementById('publishQty'); e.value = Math.max(1, Math.min(100, parseInt(e.value) || 1)); updatePublishPreview(); }
+
+function updatePublishPreview() {
+    const data = window._adminServices;
+    if (!data) return;
+    const typeId = document.getElementById('publishType').value;
+    const svc = data.services.find(s => s.id === typeId);
+    if (!svc) return;
+    const qty = parseInt(document.getElementById('publishQty').value) || 1;
+    const total = svc.unitPrice * qty;
+    const dashiRate = data.fee ? data.fee.dashi : 0.844;
+    document.getElementById('publishPreviewTotal').textContent = '¥' + total;
+    document.getElementById('publishPreviewDashi').textContent = '¥' + (total * dashiRate).toFixed(2);
+}
+
+async function publishOrder() {
+    const typeId = document.getElementById('publishType').value;
+    const gameId = document.getElementById('publishGameId').value.trim();
+    const quantity = parseInt(document.getElementById('publishQty').value) || 1;
+    const assignee = document.getElementById('publishAssignee').value.trim();
+    const note = document.getElementById('publishNote').value.trim();
+    if (!gameId) return toast('请输入游戏ID', 'error');
+    try {
+        const order = await api('/api/admin/orders', { method: 'POST', body: { typeId, quantity, gameId, note, assignee } });
+        toast('订单 #' + order.id + ' 上架成功', 'success');
+        document.getElementById('publishGameId').value = '';
+        document.getElementById('publishNote').value = '';
+        document.getElementById('publishAssignee').value = '';
+        document.getElementById('publishQty').value = '1';
+        updatePublishPreview();
+        loadAdmin();
+    } catch (e) { toast(e.message, 'error'); }
+}
+
+// ============ 管理员：价格管理 ============
+async function loadAdminServices() {
+    try {
+        const data = await api('/api/admin/services');
+        renderServiceEditor(data);
+    } catch (e) { document.getElementById('adminServices').innerHTML = '<div class="tip">加载价格失败：' + e.message + '</div>'; }
+}
+
+function renderServiceEditor(data) {
+    const container = document.getElementById('adminServices');
+    const fee = data.fee || {};
+    container.innerHTML = `
+        <div style="margin-bottom:14px">
+            <h4 style="color:#e2e8f0;margin:0 0 8px">服务价格</h4>
+            <table class="admin-table">
+                <tr><th>服务</th><th>单价(元)</th><th>单位描述</th><th>操作</th></tr>
+                ${data.services.map(s => `
+                    <tr>
+                        <td>${s.name}</td>
+                        <td>¥<span id="svc_price_${s.id}">${s.unitPrice}</span></td>
+                        <td><span id="svc_unit_${s.id}">${s.unitAmount || ''}</span></td>
+                        <td><button class="btn btn-outline btn-sm" onclick="editService('${s.id}')">编辑</button></td>
+                    </tr>`).join('')}
+            </table>
+        </div>
+        <div style="margin-bottom:14px">
+            <h4 style="color:#e2e8f0;margin:0 0 8px">费率配置（合计应接近 100%）</h4>
+            <table class="admin-table">
+                <tr><th>项目</th><th>当前值</th><th>操作</th></tr>
+                <tr><td>平台费率</td><td id="fee_platform">${(fee.platform * 100).toFixed(1)}%</td><td><button class="btn btn-outline btn-sm" onclick="editFee('platform')">编辑</button></td></tr>
+                <tr><td>支付宝手续费</td><td id="fee_alipay">${(fee.alipay * 100).toFixed(1)}%</td><td><button class="btn btn-outline btn-sm" onclick="editFee('alipay')">编辑</button></td></tr>
+                <tr><td>打手比例</td><td id="fee_dashi">${(fee.dashi * 100).toFixed(1)}%</td><td><button class="btn btn-outline btn-sm" onclick="editFee('dashi')">编辑</button></td></tr>
+                <tr style="background:#1e293b"><td><strong>合计</strong></td><td id="fee_sum"><strong>${((fee.platform + fee.alipay + fee.dashi) * 100).toFixed(1)}%</strong></td><td></td></tr>
+            </table>
+        </div>`;
+    // 缓存当前数据供编辑使用
+    window._adminServices = data;
+}
+
+function editService(svcId) {
+    const data = window._adminServices;
+    const svc = data.services.find(s => s.id === svcId);
+    if (!svc) return;
+    showModal(`
+        <h2>编辑服务价格</h2>
+        <div style="text-align:left">
+            <label>服务名称</label><input id="editSvcName" class="input" value="${svc.name}" readonly style="background:#1e293b;color:#94a3b8">
+            <label>单价（元）</label><input id="editSvcPrice" class="input" type="number" min="1" step="0.01" value="${svc.unitPrice}">
+            <label>单位描述</label><input id="editSvcUnit" class="input" value="${svc.unitAmount || ''}" placeholder="如：500w游戏币">
+            <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="saveServiceEdit('${svcId}')">保存</button>
+        </div>`);
+}
+
+function saveServiceEdit(svcId) {
+    const data = window._adminServices;
+    const svc = data.services.find(s => s.id === svcId);
+    if (!svc) return;
+    const price = parseFloat(document.getElementById('editSvcPrice').value);
+    const unitAmount = document.getElementById('editSvcUnit').value.trim();
+    if (isNaN(price) || price <= 0) return toast('单价必须为正数', 'error');
+    svc.unitPrice = price;
+    svc.unitAmount = unitAmount;
+    saveServices(data.services, null);
+}
+
+function editFee(feeKey) {
+    const data = window._adminServices;
+    const fee = data.fee;
+    const labels = { platform: '平台费率', alipay: '支付宝手续费', dashi: '打手比例' };
+    const current = (fee[feeKey] * 100).toFixed(1);
+    showModal(`
+        <h2>编辑${labels[feeKey]}</h2>
+        <div style="text-align:left">
+            <label>百分比（%）</label><input id="editFeeVal" class="input" type="number" min="0" max="100" step="0.1" value="${current}">
+            <p style="color:#94a3b8;font-size:12px;margin-top:6px">当前三项费率合计：${((fee.platform + fee.alipay + fee.dashi) * 100).toFixed(1)}%<br>修改后合计应接近 100%，否则无法保存。</p>
+            <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="saveFeeEdit('${feeKey}')">保存</button>
+        </div>`);
+}
+
+function saveFeeEdit(feeKey) {
+    const data = window._adminServices;
+    const val = parseFloat(document.getElementById('editFeeVal').value);
+    if (isNaN(val) || val < 0 || val > 100) return toast('请输入 0~100 的数字', 'error');
+    data.fee[feeKey] = val / 100;
+    saveServices(data.services, data.fee);
+}
+
+async function saveServices(services, fee) {
+    try {
+        const body = { services };
+        if (fee) body.fee = fee;
+        const result = await api('/api/admin/services', { method: 'PUT', body });
+        window._adminServices = result;
+        renderServiceEditor(result);
+        closeModal();
+        toast('价格已保存', 'success');
+    } catch (e) { toast(e.message, 'error'); }
 }
 
 // 启动
