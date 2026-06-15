@@ -190,17 +190,19 @@ function switchLoginTab(tab) {
     const saved = STATE.user;
     if (tab === 'login') {
         document.getElementById('loginForm').innerHTML = `
-            <label>角色</label><select id="loginRole" class="input"><option value="guke"${saved&&saved.role==='guke'?' selected':''}>顾客</option><option value="dashi"${saved&&saved.role==='dashi'?' selected':''}>打手</option></select>
+            <label>角色</label><select id="loginRole" class="input" onchange="onLoginRoleChange()"><option value="guke"${saved&&saved.role==='guke'?' selected':''}>顾客</option><option value="dashi"${saved&&saved.role==='dashi'?' selected':''}>打手</option></select>
+            <div id="loginPlatformWrap"><label>平台类型</label><select id="loginPlatform" class="input" onchange="onPlatformChange('login')"><option value="pc">端游</option><option value="mobile">手游</option></select></div>
             <label>用户名</label><input id="loginName" class="input" placeholder="请输入用户名" value="${saved ? saved.name : ''}">
             <label>密码</label><input id="loginPass" class="input" type="password" placeholder="请输入密码">
-            <label>安全码（打手必填）</label><input id="loginSafety" class="input" type="password" placeholder="安全码">
+            <label>安全码（打手必填）</label><input id="loginSafety" class="input" type="password" placeholder="安全码（端游:123456）">
             <button class="btn btn-primary" style="margin-top:14px" onclick="doLogin()">登录</button>`;
     } else {
         document.getElementById('loginForm').innerHTML = `
-            <label>角色</label><select id="regRole" class="input" onchange="document.getElementById('regSafetyWrap').style.display=this.value==='dashi'?'':'none'"><option value="guke">顾客</option><option value="dashi">打手</option></select>
+            <label>角色</label><select id="regRole" class="input" onchange="onRegRoleChange()"><option value="guke">顾客</option><option value="dashi">打手</option></select>
+            <div id="regPlatformWrap"><label>平台类型</label><select id="regPlatform" class="input" onchange="onPlatformChange('reg')"><option value="pc">端游</option><option value="mobile">手游</option></select></div>
             <label>用户名</label><input id="regName" class="input" placeholder="请输入用户名">
             <label>密码</label><input id="regPass" class="input" type="password" placeholder="至少4位">
-            <div id="regSafetyWrap"><label>安全码（打手必填）</label><input id="regSafety" class="input" type="password" placeholder="安全码"></div>
+            <div id="regSafetyWrap"><label>安全码（打手必填）</label><input id="regSafety" class="input" type="password" placeholder="安全码（端游:123456）"></div>
             <button class="btn btn-primary" style="margin-top:14px" onclick="doRegister()">注册</button>`;
     }
 }
@@ -211,7 +213,10 @@ async function doLogin() {
     const pass = document.getElementById('loginPass').value;
     try {
         const body = { name, password: pass, role };
-        if (role === 'dashi') body.safetyCode = document.getElementById('loginSafety').value;
+        if (role === 'dashi') {
+            body.platform = document.getElementById('loginPlatform').value;
+            body.safetyCode = document.getElementById('loginSafety').value;
+        }
         const data = await api('/api/login', { method: 'POST', body });
         STATE.token = data.token; STATE.user = data.user;
         localStorage.setItem('token', data.token); saveUser(data.user);
@@ -225,12 +230,34 @@ async function doRegister() {
     const pass = document.getElementById('regPass').value;
     try {
         const body = { name, password: pass, role };
-        if (role === 'dashi') body.safetyCode = document.getElementById('regSafety').value;
+        if (role === 'dashi') {
+            body.platform = document.getElementById('regPlatform').value;
+            body.safeCode = document.getElementById('regSafety').value;
+        }
         const data = await api('/api/register', { method: 'POST', body });
         STATE.token = data.token; STATE.user = data.user;
         localStorage.setItem('token', data.token); saveUser(data.user);
         render(); toast('注册成功', 'success');
     } catch (e) { toast(e.message, 'error'); }
+}
+
+function onPlatformChange(prefix) {
+    const plat = document.getElementById(prefix + 'Platform').value;
+    const ph = plat === 'pc' ? '端游:123456' : '手游:654321';
+    const el = document.getElementById(prefix + 'Safety');
+    if (el) el.placeholder = '安全码（' + ph + '）';
+}
+function onRegRoleChange() {
+    const isDashi = document.getElementById('regRole').value === 'dashi';
+    document.getElementById('regPlatformWrap').style.display = isDashi ? '' : 'none';
+    document.getElementById('regSafetyWrap').style.display = isDashi ? '' : 'none';
+}
+function onLoginRoleChange() {
+    const isDashi = document.getElementById('loginRole').value === 'dashi';
+    document.getElementById('loginPlatformWrap').style.display = isDashi ? '' : 'none';
+    const si = document.getElementById('loginSafety');
+    si.style.display = isDashi ? '' : 'none';
+    si.previousElementSibling.style.display = isDashi ? '' : 'none';
 }
 
 async function showAdminKey() {
@@ -316,6 +343,7 @@ function selectType(typeId) {
                 <div><span class="label">支付手续费（0.6%）</span><span class="val deduct" id="fbAlipay">-¥${(st.unitPrice*0.006).toFixed(2)}</span></div>
                 <div style="border-top:1px solid #1e293b;margin-top:4px;padding-top:4px"><span class="label">打手所得（84.4%）</span><span class="val income" id="fbDashi">¥${(st.unitPrice*0.844).toFixed(2)}</span></div>
             </div>
+            <div id="orderPlatformWrap"${st.id === 'huhang' ? '' : ' class="hidden"'}><label>平台类型</label><select id="orderPlatform" class="input"><option value="pc">端游</option><option value="mobile">手游</option></select></div>
             <label>游戏ID <span style="color:#ef4444">*</span></label>
             <input id="gameId" class="input" placeholder="请输入游戏内ID">
             <label>备注</label><input id="note" class="input" placeholder="选填">
@@ -345,8 +373,11 @@ async function submitOrder(typeId) {
     const gameId = document.getElementById('gameId').value.trim();
     const note = document.getElementById('note').value.trim();
     if (!gameId) return toast('请输入游戏ID', 'error');
+    const body = { typeId, quantity: qty, gameId, note };
+    const pw = document.getElementById('orderPlatformWrap');
+    if (pw && !pw.classList.contains('hidden')) body.platform = document.getElementById('orderPlatform').value;
     try {
-        const order = await api('/api/orders', { method: 'POST', body: { typeId, quantity: qty, gameId, note } });
+        const order = await api('/api/orders', { method: 'POST', body });
         document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
         document.getElementById('orderForm').classList.add('hidden');
         showPayModal(order);

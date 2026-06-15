@@ -10,7 +10,7 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3456;
 const DATA_DIR = path.join(__dirname, 'data');
-const SAFETY_CODE = '123456';
+const SAFETY_CODES = { pc: '123456', mobile: '654321' };
 const ADMIN_KEY = '880123';
 
 // ============ NestPay 易支付配置 ============
@@ -151,17 +151,21 @@ function adminMiddleware(req, res, next) {
 app.get('/api/types', (req, res) => res.json(SERVICE_TYPES));
 
 app.post('/api/register', (req, res) => {
-    const { name, password, role } = req.body;
+    const { name, password, role, platform, safeCode } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: '用户名不能为空' });
     if (!password || password.length < 4) return res.status(400).json({ error: '密码至少4位' });
     if (role !== 'dashi' && role !== 'guke') return res.status(400).json({ error: '角色无效' });
-    if (role === 'dashi' && req.body.safetyCode !== SAFETY_CODE) return res.status(403).json({ error: '安全码错误' });
+    if (role === 'dashi') {
+        if (!platform || (!SAFETY_CODES[platform])) return res.status(400).json({ error: '请选择平台（手游/端游）' });
+        if (!safeCode || safeCode !== SAFETY_CODES[platform]) return res.status(403).json({ error: '安全码错误' });
+    }
     const users = readData('users');
     if (users.find(u => u.name === name)) return res.status(409).json({ error: '用户名已存在' });
     const newUser = {
         id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
         name: name.trim(), password, role,
         dashiId: role === 'dashi' ? ('dashi_' + name.trim().toLowerCase().replace(/\s/g, '_')) : null,
+        platform: role === 'dashi' ? platform : null,
         completedOrders: 0, totalEarned: 0, createdAt: Date.now()
     };
     users.push(newUser);
@@ -180,7 +184,10 @@ app.post('/api/login', (req, res) => {
     }
     if (!name || !password) return res.status(400).json({ error: '用户名密码不能为空' });
     if (role !== 'dashi' && role !== 'guke') return res.status(400).json({ error: '角色无效' });
-    if (role === 'dashi' && req.body.safetyCode !== SAFETY_CODE) return res.status(403).json({ error: '安全码错误' });
+    if (role === 'dashi') {
+        const platform = req.body.platform;
+        if (!platform || !SAFETY_CODES[platform] || req.body.safetyCode !== SAFETY_CODES[platform]) return res.status(403).json({ error: '安全码错误' });
+    }
     const users = readData('users');
     const user = users.find(u => u.name === name && u.role === role);
     if (!user) return res.status(401).json({ error: '用户不存在' });
@@ -197,7 +204,7 @@ app.post('/api/logout', authMiddleware, (req, res) => { removeToken(req.token); 
 // ============ 下单 ============
 app.post('/api/orders', authMiddleware, (req, res) => {
     if (req.user.role !== 'guke') return res.status(403).json({ error: '仅顾客可下单' });
-    const { typeId, quantity, gameId, note } = req.body;
+    const { typeId, quantity, gameId, note, platform } = req.body;
     const st = SERVICE_TYPES.find(s => s.id === typeId);
     if (!st) return res.status(400).json({ error: '无效服务类型' });
     const qty = parseInt(quantity) || 1;
@@ -215,7 +222,7 @@ app.post('/api/orders', authMiddleware, (req, res) => {
         customerName: req.user.name, customerId: req.user.id, gameId: gameId.trim(),
         note: (note || '').trim(), status: 'unpaid', dashiId: null, dashiName: null,
         time: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
-        paidAt: null
+        paidAt: null, platform: platform || null
     };
     orders.unshift(newOrder);
     writeData('orders', orders);
