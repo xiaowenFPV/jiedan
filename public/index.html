@@ -471,24 +471,12 @@ async function loadAdmin() {
         pc.innerHTML = `<div class="card"><h3>管理员面板</h3><p style="color:#94a3b8;font-size:12px;margin-bottom:8px">已收款总额：¥${total.toFixed(2)}</p>
             <button class="btn btn-danger btn-sm" onclick="adminCancelAll()" style="margin-right:8px">下架进行中</button>
             <button class="btn btn-danger btn-sm" onclick="adminClearOrders()">清空订单</button></div>
-        <div class="card"><h3>上架固定订单</h3>
-            <label>服务类型</label><select id="publishType" class="input" onchange="updatePublishPreview()">
-                ${servicesData.services.map(s => `<option value="${s.id}">${s.name} — ¥${s.unitPrice} / ${s.unitAmount}</option>`).join('')}
-            </select>
-            <label>游戏ID <span style="color:#ef4444">*</span></label><input id="publishGameId" class="input" placeholder="请输入游戏内ID">
-            <label>数量</label>
-            <div class="qty-control" style="margin-bottom:10px">
-                <button onclick="publishChangeQty(-1)">-</button>
-                <input class="qty-input" id="publishQty" value="1" oninput="publishOnQtyInput()" type="number" min="1" max="100">
-                <button onclick="publishChangeQty(1)">+</button>
-            </div>
-            <label>指定打手（可选，输入打手名称或ID）</label><input id="publishAssignee" class="input" placeholder="留空则进入待接单池">
-            <label>备注</label><input id="publishNote" class="input" placeholder="选填">
-            <div class="fee-breakdown" style="margin-top:12px">
-                <div><span class="label">预估总价</span><span class="val" id="publishPreviewTotal">¥${servicesData.services[0].unitPrice}</span></div>
-                <div><span class="label">打手收入</span><span class="val income" id="publishPreviewDashi">¥${(servicesData.services[0].unitPrice * (servicesData.fee ? servicesData.fee.dashi : 0.844)).toFixed(2)}</span></div>
-            </div>
-            <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="publishOrder()">上架订单</button>
+        <div class="card"><h3>新增服务类型</h3>
+            <label>服务名称 <span style="color:#ef4444">*</span></label><input id="newSvcName" class="input" placeholder="如：带老板">
+            <label>单价（元）<span style="color:#ef4444">*</span></label><input id="newSvcPrice" class="input" type="number" min="0.01" step="0.01" placeholder="如：30">
+            <label>单位描述 <span style="color:#ef4444">*</span></label><input id="newSvcUnit" class="input" placeholder="如：每把/每趟">
+            <label>简介</label><input id="newSvcDesc" class="input" placeholder="选填，如：专业带老板安全快速">
+            <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="addServiceType()">新增服务</button>
         </div>
         <div class="card"><h3>全部订单 (${orders.length})</h3>${oh}</div>
         <div class="card"><h3>全部用户 (${users.length})</h3>${uh}</div>
@@ -514,38 +502,22 @@ async function adminClearOrders() {
     catch (e) { toast(e.message, 'error'); }
 }
 
-// ============ 管理员：上架固定订单 ============
-function publishChangeQty(d) { const e = document.getElementById('publishQty'); e.value = Math.max(1, Math.min(100, (parseInt(e.value) || 1) + d)); updatePublishPreview(); }
-function publishOnQtyInput() { const e = document.getElementById('publishQty'); e.value = Math.max(1, Math.min(100, parseInt(e.value) || 1)); updatePublishPreview(); }
-
-function updatePublishPreview() {
-    const data = window._adminServices;
-    if (!data) return;
-    const typeId = document.getElementById('publishType').value;
-    const svc = data.services.find(s => s.id === typeId);
-    if (!svc) return;
-    const qty = parseInt(document.getElementById('publishQty').value) || 1;
-    const total = svc.unitPrice * qty;
-    const dashiRate = data.fee ? data.fee.dashi : 0.844;
-    document.getElementById('publishPreviewTotal').textContent = '¥' + total;
-    document.getElementById('publishPreviewDashi').textContent = '¥' + (total * dashiRate).toFixed(2);
-}
-
-async function publishOrder() {
-    const typeId = document.getElementById('publishType').value;
-    const gameId = document.getElementById('publishGameId').value.trim();
-    const quantity = parseInt(document.getElementById('publishQty').value) || 1;
-    const assignee = document.getElementById('publishAssignee').value.trim();
-    const note = document.getElementById('publishNote').value.trim();
-    if (!gameId) return toast('请输入游戏ID', 'error');
+// ============ 管理员：新增服务类型 ============
+async function addServiceType() {
+    const name = document.getElementById('newSvcName').value.trim();
+    const unitPrice = document.getElementById('newSvcPrice').value.trim();
+    const unitAmount = document.getElementById('newSvcUnit').value.trim();
+    const desc = document.getElementById('newSvcDesc').value.trim();
+    if (!name) return toast('请输入服务名称', 'error');
+    if (!unitPrice || isNaN(parseFloat(unitPrice)) || parseFloat(unitPrice) <= 0) return toast('请输入有效的单价', 'error');
+    if (!unitAmount) return toast('请输入单位描述', 'error');
     try {
-        const order = await api('/api/admin/orders', { method: 'POST', body: { typeId, quantity, gameId, note, assignee } });
-        toast('订单 #' + order.id + ' 上架成功', 'success');
-        document.getElementById('publishGameId').value = '';
-        document.getElementById('publishNote').value = '';
-        document.getElementById('publishAssignee').value = '';
-        document.getElementById('publishQty').value = '1';
-        updatePublishPreview();
+        const svc = await api('/api/admin/services/add', { method: 'POST', body: { name, unitPrice: parseFloat(unitPrice), unitAmount, desc } });
+        toast('服务 ' + svc.name + ' 已新增', 'success');
+        document.getElementById('newSvcName').value = '';
+        document.getElementById('newSvcPrice').value = '';
+        document.getElementById('newSvcUnit').value = '';
+        document.getElementById('newSvcDesc').value = '';
         loadAdmin();
     } catch (e) { toast(e.message, 'error'); }
 }
