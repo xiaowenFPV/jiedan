@@ -184,9 +184,9 @@ app.post('/api/login', (req, res) => {
     }
     if (!name || !password) return res.status(400).json({ error: '用户名密码不能为空' });
     if (role !== 'dashi' && role !== 'guke') return res.status(400).json({ error: '角色无效' });
-    if (role === 'dashi') {
-        const platform = req.body.platform;
-        if (!platform || !SAFETY_CODES[platform] || req.body.safetyCode !== SAFETY_CODES[platform]) return res.status(403).json({ error: '安全码错误' });
+    if (role === 'dashi' && req.body.platform && req.body.safetyCode) {
+        const { platform, safetyCode } = req.body;
+        if (!SAFETY_CODES[platform] || safetyCode !== SAFETY_CODES[platform]) return res.status(403).json({ error: '安全码错误' });
     }
     const users = readData('users');
     const user = users.find(u => u.name === name && u.role === role);
@@ -194,7 +194,7 @@ app.post('/api/login', (req, res) => {
     if (user.password !== password) return res.status(401).json({ error: '密码错误' });
     const token = generateToken();
     setToken(token, user.id, user.role);
-    return res.json({ token, user: { id: user.id, name: user.name, role: user.role, dashiId: user.dashiId } });
+    return res.json({ token, user: { id: user.id, name: user.name, role: user.role, dashiId: user.dashiId, platform: user.platform || null } });
 });
 
 app.get('/api/user', authMiddleware, (req, res) => res.json({ id: req.user.id, name: req.user.name, role: req.user.role, dashiId: req.user.dashiId }));

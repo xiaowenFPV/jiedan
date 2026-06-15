@@ -190,11 +190,9 @@ function switchLoginTab(tab) {
     const saved = STATE.user;
     if (tab === 'login') {
         document.getElementById('loginForm').innerHTML = `
-            <label>角色</label><select id="loginRole" class="input" onchange="onLoginRoleChange()"><option value="guke"${saved&&saved.role==='guke'?' selected':''}>顾客</option><option value="dashi"${saved&&saved.role==='dashi'?' selected':''}>打手</option></select>
-            <div id="loginPlatformWrap"><label>平台类型</label><select id="loginPlatform" class="input" onchange="onPlatformChange('login')"><option value="pc">端游</option><option value="mobile">手游</option></select></div>
+            <label>角色</label><select id="loginRole" class="input"><option value="guke"${saved&&saved.role==='guke'?' selected':''}>顾客</option><option value="dashi"${saved&&saved.role==='dashi'?' selected':''}>打手</option></select>
             <label>用户名</label><input id="loginName" class="input" placeholder="请输入用户名" value="${saved ? saved.name : ''}">
             <label>密码</label><input id="loginPass" class="input" type="password" placeholder="请输入密码">
-            <label>安全码（打手必填）</label><input id="loginSafety" class="input" type="password" placeholder="安全码（端游:123456）">
             <button class="btn btn-primary" style="margin-top:14px" onclick="doLogin()">登录</button>`;
     } else {
         document.getElementById('loginForm').innerHTML = `
@@ -213,12 +211,7 @@ async function doLogin() {
     const name = document.getElementById('loginName').value.trim();
     const pass = document.getElementById('loginPass').value;
     try {
-        const body = { name, password: pass, role };
-        if (role === 'dashi') {
-            body.platform = document.getElementById('loginPlatform').value;
-            body.safetyCode = document.getElementById('loginSafety').value;
-        }
-        const data = await api('/api/login', { method: 'POST', body });
+        const data = await api('/api/login', { method: 'POST', body: { name, password: pass, role } });
         STATE.token = data.token; STATE.user = data.user;
         localStorage.setItem('token', data.token); saveUser(data.user);
         render(); toast('登录成功', 'success');
@@ -252,13 +245,6 @@ function onRegRoleChange() {
     const isDashi = document.getElementById('regRole').value === 'dashi';
     document.getElementById('regPlatformWrap').style.display = isDashi ? '' : 'none';
     document.getElementById('regSafetyWrap').style.display = isDashi ? '' : 'none';
-}
-function onLoginRoleChange() {
-    const isDashi = document.getElementById('loginRole').value === 'dashi';
-    document.getElementById('loginPlatformWrap').style.display = isDashi ? '' : 'none';
-    const si = document.getElementById('loginSafety');
-    si.style.display = isDashi ? '' : 'none';
-    si.previousElementSibling.style.display = isDashi ? '' : 'none';
 }
 
 async function showAdminKey() {
