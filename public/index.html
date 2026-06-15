@@ -197,10 +197,10 @@ function switchLoginTab(tab) {
     } else {
         document.getElementById('loginForm').innerHTML = `
             <label>角色</label><select id="regRole" class="input" onchange="onRegRoleChange()"><option value="guke">顾客</option><option value="dashi">打手</option></select>
-            <div id="regPlatformWrap"><label>平台类型</label><select id="regPlatform" class="input" onchange="onPlatformChange('reg')"><option value="pc">端游</option><option value="mobile">手游</option></select></div>
+            <div id="regPlatformWrap"><label>平台类型</label><select id="regPlatform" class="input"><option value="pc">端游</option><option value="mobile">手游</option></select></div>
             <label>用户名</label><input id="regName" class="input" placeholder="请输入用户名">
             <label>密码</label><input id="regPass" class="input" type="password" placeholder="至少4位">
-            <div id="regSafetyWrap"><label>安全码（打手必填）</label><input id="regSafety" class="input" type="password" placeholder="安全码（端游:123456）"></div>
+            <div id="regSafetyWrap"><label>安全码（打手必填）</label><input id="regSafety" class="input" type="password" placeholder="请输入安全码"></div>
             <button class="btn btn-primary" style="margin-top:14px" onclick="doRegister()">注册</button>`;
         onRegRoleChange();
     }
@@ -235,12 +235,6 @@ async function doRegister() {
     } catch (e) { toast(e.message, 'error'); }
 }
 
-function onPlatformChange(prefix) {
-    const plat = document.getElementById(prefix + 'Platform').value;
-    const ph = plat === 'pc' ? '端游:123456' : '手游:654321';
-    const el = document.getElementById(prefix + 'Safety');
-    if (el) el.placeholder = '安全码（' + ph + '）';
-}
 function onRegRoleChange() {
     const isDashi = document.getElementById('regRole').value === 'dashi';
     document.getElementById('regPlatformWrap').style.display = isDashi ? '' : 'none';
