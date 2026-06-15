@@ -620,20 +620,84 @@ function editFee(feeKey) {
     const fee = data.fee;
     const labels = { platform: '平台费率', alipay: '支付宝手续费', dashi: '打手比例' };
     const current = (fee[feeKey] * 100).toFixed(1);
+    // 保存原始费率快照，供 oninput 联动计算
+    window._feeSnap = { platform: fee.platform, alipay: fee.alipay, dashi: fee.dashi };
     showModal(`
         <h2>编辑${labels[feeKey]}</h2>
         <div style="text-align:left">
-            <label>百分比（%）</label><input id="editFeeVal" class="input" type="number" min="0" max="100" step="0.1" value="${current}">
-            <p style="color:#94a3b8;font-size:12px;margin-top:6px">当前三项费率合计：${((fee.platform + fee.alipay + fee.dashi) * 100).toFixed(1)}%<br>修改后合计应接近 100%，否则无法保存。</p>
+            <label>百分比（%）</label><input id="editFeeVal" class="input" type="number" min="0" max="100" step="0.1" value="${current}" oninput="previewFeeAdjust('${feeKey}')">
+            <div id="feePreview" style="color:#f59e0b;font-size:12px;margin-top:6px"></div>
             <button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="saveFeeEdit('${feeKey}')">保存</button>
         </div>`);
+    previewFeeAdjust(feeKey);
+}
+
+function previewFeeAdjust(changedKey) {
+    const val = parseFloat(document.getElementById('editFeeVal').value);
+    if (isNaN(val) || val < 0 || val > 100) {
+        document.getElementById('feePreview').innerHTML = '';
+        return;
+    }
+    const snap = window._feeSnap;
+    const newVal = val / 100;
+    let newFee = { platform: snap.platform, alipay: snap.alipay, dashi: snap.dashi };
+    newFee[changedKey] = newVal;
+
+    if (changedKey === 'dashi') {
+        // 修改打手费率：调整平台费率，保持支付宝手续费不变
+        newFee.platform = 1 - newFee.alipay - newFee.dashi;
+    } else {
+        // 修改平台费率或支付宝手续费：调整打手费率
+        newFee.dashi = 1 - newFee.platform - newFee.alipay;
+    }
+
+    const sum = (newFee.platform + newFee.alipay + newFee.dashi) * 100;
+    let html = '';
+    if (newFee.platform < 0 || newFee.alipay < 0 || newFee.dashi < 0 || newFee.platform > 1 || newFee.alipay > 1 || newFee.dashi > 1) {
+        html = '<span style="color:#ef4444">调整后某项费率越界（<0 或 >100%），请重新输入</span>';
+    } else {
+        const platformPct = (newFee.platform * 100).toFixed(1);
+        const alipayPct = (newFee.alipay * 100).toFixed(1);
+        const dashiPct = (newFee.dashi * 100).toFixed(1);
+        html = `联动调整后：平台 ${platformPct}% | 支付宝 ${alipayPct}% | 打手 ${dashiPct}% | 合计 ${sum.toFixed(1)}%`;
+    }
+    document.getElementById('feePreview').innerHTML = html;
 }
 
 function saveFeeEdit(feeKey) {
     const data = window._adminServices;
     const val = parseFloat(document.getElementById('editFeeVal').value);
     if (isNaN(val) || val < 0 || val > 100) return toast('请输入 0~100 的数字', 'error');
-    data.fee[feeKey] = val / 100;
+
+    // 联动调整其他费率，保证合计精确为 100%
+    const snap = window._feeSnap || data.fee;
+    let newFee = { platform: snap.platform, alipay: snap.alipay, dashi: snap.dashi };
+    newFee[feeKey] = val / 100;
+
+    if (feeKey === 'dashi') {
+        newFee.platform = 1 - newFee.alipay - newFee.dashi;
+    } else {
+        newFee.dashi = 1 - newFee.platform - newFee.alipay;
+    }
+
+    // 校验越界
+    if (newFee.platform < 0 || newFee.alipay < 0 || newFee.dashi < 0 ||
+        newFee.platform > 1 || newFee.alipay > 1 || newFee.dashi > 1) {
+        return toast('联动调整后某项费率越界（<0 或 >100%），请重新输入', 'error');
+    }
+
+    // 四舍五入到 3 位小数避免浮点误差
+    newFee.platform = Math.round(newFee.platform * 1000) / 1000;
+    newFee.alipay = Math.round(newFee.alipay * 1000) / 1000;
+    newFee.dashi = Math.round(1 - newFee.platform - newFee.alipay) * 1000 / 1000;
+
+    // 最终兜底校验合计≈1
+    const sum = newFee.platform + newFee.alipay + newFee.dashi;
+    if (Math.abs(sum - 1) > 0.002) {
+        return toast('费率合计不等于 100%，请检查', 'error');
+    }
+
+    data.fee = newFee;
     saveServices(data.services, data.fee);
 }
 
