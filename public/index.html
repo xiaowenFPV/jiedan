@@ -408,7 +408,7 @@ async function renderDashiHome() {
         let html = pending.length === 0 ? '<div class="tip">暂无待接订单</div>' : pending.map(o => `
             <div class="order-item">
                 <div class="header"><span class="type">${o.typeName} x${o.quantity}</span><span class="badge badge-pending">待接单</span></div>
-                <div class="info">${o.unitAmount}×${o.quantity} | ¥${o.totalPrice}<br>顾客：${o.customerName} | 游戏ID：${o.gameId}<br><span class="dashi-row">打手收入：¥${o.dashiIncome.toFixed(2)}</span><br>${o.note ? '备注：'+o.note+'<br>' : ''}${o.time}</div>
+                <div class="info">${o.unitAmount}×${o.quantity} | 收入：¥${o.dashiIncome.toFixed(2)}<br>顾客：${o.customerName} | 游戏ID：${o.gameId}<br>${o.note ? '备注：'+o.note+'<br>' : ''}${o.time}</div>
                 <div class="actions"><button class="btn btn-success btn-sm" onclick="acceptOrder(${o.id})">接单</button></div>
             </div>`).join('');
         pc.innerHTML = `<div class="card"><h3>欢迎，${STATE.user.name}</h3><p style="color:#64748b;font-size:13px">打手</p></div>
@@ -432,11 +432,17 @@ async function loadOrders() {
             let actions = '';
             if (STATE.user.role === 'guke' && o.status === 'unpaid') actions = '<button class="btn btn-primary btn-sm" onclick="continuePay(' + o.id + ')">继续付款</button><button class="btn btn-danger btn-sm" onclick="cancelOrder(' + o.id + ')">取消</button>';
             if (STATE.user.role === 'dashi' && o.status === 'accepted') actions = '<button class="btn btn-success btn-sm" onclick="completeOrder(' + o.id + ')">标记完成</button>';
-            let feeHtml = o.status !== 'unpaid' && o.dashiIncome !== undefined ? '<span class="fee-row">平台：¥' + o.platformFee.toFixed(2) + '</span> | <span class="fee-row">手续费：¥' + o.alipayFee.toFixed(2) + '</span> | <span class="dashi-row">打手：¥' + o.dashiIncome.toFixed(2) + '</span><br>' : '';
+            const isHunter = STATE.user.role === 'dashi';
+            const priceInfo = isHunter
+                ? `<span class="dashi-row">实际收入：¥${o.dashiIncome.toFixed(2)}</span>`
+                : `¥${o.totalPrice.toFixed(2)}`;
+            const feeHtmlForHunter = isHunter ? '' : (o.status !== 'unpaid' && o.dashiIncome !== undefined
+                ? '<span class="fee-row">平台：¥' + o.platformFee.toFixed(2) + '</span> | <span class="fee-row">手续费：¥' + o.alipayFee.toFixed(2) + '</span> | <span class="dashi-row">打手：¥' + o.dashiIncome.toFixed(2) + '</span><br>'
+                : '');
             const sl = { unpaid: '待付款', pending: '待接单', accepted: '进行中', completed: '待结算', settled: '已结算', cancelled: '已取消' };
             return `<div class="order-item ${o.status}">
                 <div class="header"><span class="type">${o.typeName} x${o.quantity}</span><span class="badge badge-${o.status}">${sl[o.status]}</span></div>
-                <div class="info">${o.unitAmount}×${o.quantity} | ¥${o.totalPrice.toFixed(2)}<br>游戏ID：${o.gameId}<br>${feeHtml}${o.dashiName ? '打手：'+o.dashiName+'<br>' : ''}${o.note ? '备注：'+o.note+'<br>' : ''}${o.time}${o.paidAt ? '<br>支付：'+o.paidAt : ''}</div>
+                <div class="info">${o.unitAmount}×${o.quantity} | ${priceInfo}<br>游戏ID：${o.gameId}<br>${feeHtmlForHunter}${o.dashiName ? '打手：'+o.dashiName+'<br>' : ''}${o.note ? '备注：'+o.note+'<br>' : ''}${o.time}${o.paidAt ? '<br>支付：'+o.paidAt : ''}</div>
                 ${actions ? '<div class="actions">'+actions+'</div>' : ''}
             </div>`;
         }).join('');
